@@ -1,5 +1,12 @@
 #pragma once
 #include <frc/DoubleSolenoid.h>
+#include <frc/Victor.h>
+#include <rev/SparkMax.h>
+#include <ctre/Phoenix.h>
+
+using namespace frc;
+using namespace rev;
+
 
 //      XBAY Button Defines     //    
 extern bool btnA;
@@ -21,5 +28,13 @@ extern bool btnBack;
 extern bool btnStart;
 extern bool leftJoystickClick;
 extern bool rightJoystickClick;
+//      flightStickDefines      //
+extern int hat;
 //      Solenoids       //
 frc::DoubleSolenoid hoodSolenoid;
+//      Motors      //
+Victor sliderMotor1;
+Victor sliderMotor2;
+SparkMax flyWheelL(1);
+SparkMax flyWheelR(2);
+WPI_TalonSRX controlPanelMotor(3);
