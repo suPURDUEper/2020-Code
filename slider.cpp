@@ -1,8 +1,10 @@
-#include <frc/Victor.h>
 #include "commonVariables.h"
+#include "motorDefine.h"
+
+Victor sliderMotor1(4);
+Victor sliderMotor2(5);
 
 void slider() {
-
     if(btnY) {
         sliderMotor1.Set(0.5);
         sliderMotor2.Set(0.5);
@@ -13,5 +15,4 @@ void slider() {
         sliderMotor1.Set(0);
         sliderMotor2.Set(0);
     }
-
 }
