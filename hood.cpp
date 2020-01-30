@@ -1,8 +1,7 @@
-#include <iostream>
-#include "frc/DoubleSolenoid.h"
 #include "commonVariables.h"
+#include "motorDefine.h"
 
-using namespace frc;
+DoubleSolenoid hoodSolenoid(7, 8);
 
 void hood() {
 
