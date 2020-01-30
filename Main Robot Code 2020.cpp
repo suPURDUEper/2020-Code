@@ -1,20 +1,24 @@
-#include "Robot.h"
-#include <iostream>
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
-#include <ctre/phoenix.h>
-#include <cameraserver/CameraServer.h>
-#include <rev/CANSparkMax.h>
-#include <rev/SparkMax.h>
+#include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/drive/DifferentialDrive.h>
-#include <frc/DoubleSolenoid.h>
+#include <networktables/NetworkTable.h>
+#include <cameraserver/CameraServer.h>
 #include <frc/DigitalInput.h>
+#include <frc/DigitalOutput.h>
+#include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
 #include <frc/Solenoid.h>
-#include <frc/Victor.h>
 #include <frc/Talon.h>
-#include <networktables/NetworkTableInstance.h>
-#include <networktables/NetworkTable.h>
+#include <iostream>
+#include "Robot.h"
+
+#include "commonVariables.h"
+#include "subSystems.h"
+
+using namespace rev;
+using namespace frc;
+using namespace std;
 
 double clamp(double in, double minval, double maxval)
 {
@@ -25,24 +29,33 @@ double clamp(double in, double minval, double maxval)
   return in;
 }
 
-using namespace frc;
-using namespace std;
-using namespace rev;
-
 Joystick controller{0};
 Joystick flightStick{1};
 
+//      Motors      //
+
+WPI_TalonSRX intakeMotor{0};
+CANSparkMax LDriveMotor{1, CANSparkMax::MotorType::kBrushless};
+CANSparkMax LDriveMotor2{2, CANSparkMax::MotorType::kBrushless};
+CANSparkMax RDriveMotor{3, CANSparkMax::MotorType::kBrushless};
+CANSparkMax RDriveMotor2{4, CANSparkMax::MotorType::kBrushless};
+WPI_TalonSRX conveyorMotor{10};
+
+CANPIDController LpidController = LDriveMotor.GetPIDController();
+CANEncoder Lencoder = LDriveMotor.GetEncoder();
+CANPIDController RpidController = RDriveMotor.GetPIDController();
+CANEncoder Rencoder = RDriveMotor.GetEncoder();
+
+// default PID coefficients
+double kP = 5e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+
+// default smart motion coefficients
+double kMaxVel = 2000, kMinVel = 0, kMaxAcc = 1500, kAllErr = 0;
+
+// motor max RPM
+const double MaxRPM = 5700;
+
 int currentLimit{50};
-
-//      Drive Motors      //
-CANSparkMax LDriveNeo2{1, CANSparkMax::MotorType::kBrushless};
-CANSparkMax LDriveNeo{2, CANSparkMax::MotorType::kBrushless}; //first number is CAN ID of motor
-CANSparkMax RDriveNeo{3, CANSparkMax::MotorType::kBrushless};
-CANSparkMax RDriveNeo2{4, CANSparkMax::MotorType::kBrushless};
-
-//      Non-Drive Motors      //
-WPI_TalonSRX intakeMotor(0);
-WPI_TalonSRX conveyorMotor(4);
 
 //      Joysticks     //
 double leftAxisX{controller.GetRawAxis(0)};
@@ -77,12 +90,10 @@ bool lifting;
 bool liftTrigger;
 
 //      Sensors     //
-frc::DigitalInput breakBeamBottom(0);
-frc::DigitalInput breakBeamTop(1);
-frc::DigitalInput breakBeamShoot(3);
-
-//      Intake Variables      //
-int ballCounter = 0;
+DigitalInput breakBeamBottomIn(0);
+DigitalOutput breakBeamBottomOut(1);
+DigitalInput breakBeamTopIn(2);
+DigitalOutput breakBeamTopOut(3);
 
 //      Drive Variables     //
 double driveStraight{0};
@@ -94,90 +105,9 @@ float modValueTurn{0.5};
 bool nitros{false};
 
 // Drive Train
-DifferentialDrive ArcadeDrive(LDriveNeo, RDriveNeo);
+DifferentialDrive ArcadeDrive(LDriveMotor, RDriveMotor);
 
 //      Solenoids     //
-frc::DoubleSolenoid hoodSolenoid(7, 8);
-
-//      Motors      //
-rev::SparkMax flyWheelL(1);
-rev::SparkMax flyWheelR(2);
-ctre::phoenix::motorcontrol::can::WPI_TalonSRX controlPanelMotor7(3);
-frc::Victor sliderMotor2(4);
-frc::Victor sliderMotor1(5);
-
-void lift()
-{
-  if (liftTrigger && !lifting && switchEnable < -0.8) {}
-}
-
-void launcher()
-{
-  if (btnX)
-  {
-    if (flyWheelL.GetSpeed() < .8)
-    {
-      flyWheelL.Set(1);
-    }
-    else if (flyWheelL.GetSpeed() > .8)
-    {
-      flyWheelL.Set(.6);
-    }
-    else
-    {
-      flyWheelL.Set(0);
-    }
-  }
-}
-
-void slider()
-{
-  if (btnY)
-  {
-    sliderMotor1.Set(0.5);
-    sliderMotor2.Set(0.5);
-  }
-  else if (btnB)
-  {
-    sliderMotor1.Set(-0.5);
-    sliderMotor2.Set(-0.5);
-  }
-  else
-  {
-    sliderMotor1.Set(0);
-    sliderMotor2.Set(0);
-  }
-}
-
-void hood()
-{
-  if (btnA)
-  {
-    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
-  }
-  else if (!btnA)
-  {
-    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
-  }
-}
-
-void controlPanel()
-{
-  if ((hat = 90))
-  {
-    controlPanelMotor7.Set(0.5);
-  }
-  else if ((hat = 270))
-  {
-    controlPanelMotor7.Set(-0.5);
-  }
-  else
-  {
-    controlPanelMotor7.Set(0);
-  }
-}
-
-// Sub Systems //
 
 void Robot::RobotInit()
 {
@@ -185,6 +115,54 @@ void Robot::RobotInit()
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+
+  LDriveMotor.RestoreFactoryDefaults();
+  RDriveMotor.RestoreFactoryDefaults();
+  LDriveMotor2.Follow(LDriveMotor);
+  RDriveMotor2.Follow(RDriveMotor);
+
+  LpidController.SetP(kP);
+  LpidController.SetI(kI);
+  LpidController.SetD(kD);
+  LpidController.SetIZone(kIz);
+  LpidController.SetFF(kFF);
+  LpidController.SetOutputRange(kMinOutput, kMaxOutput);
+  RpidController.SetP(kP);
+  RpidController.SetI(kI);
+  RpidController.SetD(kD);
+  RpidController.SetIZone(kIz);
+  RpidController.SetFF(kFF);
+  RpidController.SetOutputRange(kMinOutput, kMaxOutput);
+
+  LpidController.SetSmartMotionMaxVelocity(kMaxVel);
+  LpidController.SetSmartMotionMinOutputVelocity(kMinVel);
+  LpidController.SetSmartMotionMaxAccel(kMaxAcc);
+  LpidController.SetSmartMotionAllowedClosedLoopError(kAllErr);
+  RpidController.SetSmartMotionMaxVelocity(kMaxVel);
+  RpidController.SetSmartMotionMinOutputVelocity(kMinVel);
+  RpidController.SetSmartMotionMaxAccel(kMaxAcc);
+  RpidController.SetSmartMotionAllowedClosedLoopError(kAllErr);
+
+  // display PID coefficients on SmartDashboard
+  SmartDashboard::PutNumber("P Gain", kP);
+  SmartDashboard::PutNumber("I Gain", kI);
+  SmartDashboard::PutNumber("D Gain", kD);
+  SmartDashboard::PutNumber("I Zone", kIz);
+  SmartDashboard::PutNumber("Feed Forward", kFF);
+  SmartDashboard::PutNumber("Max Output", kMaxOutput);
+  SmartDashboard::PutNumber("Min Output", kMinOutput);
+
+  // display Smart Motion coefficients
+  SmartDashboard::PutNumber("Max Velocity", kMaxVel);
+  SmartDashboard::PutNumber("Min Velocity", kMinVel);
+  SmartDashboard::PutNumber("Max Acceleration", kMaxAcc);
+  SmartDashboard::PutNumber("Allowed Closed Loop Error", kAllErr);
+  SmartDashboard::PutNumber("Set Position", 0);
+  SmartDashboard::PutNumber("Set Degrees", 0);
+  SmartDashboard::PutNumber("Set Velocity", 0);
+
+  // button to toggle between velocity and smart motion modes
+  SmartDashboard::PutBoolean("Mode", true);
 }
 
 void Robot::RobotPeriodic() {}
@@ -205,92 +183,204 @@ void Robot::AutonomousInit()
     // Default Auto goes here
   }
 }
+int clicks = 21;
+
+void forwardFunction(float distance)
+{
+  float desiredDistance{distance / 2};
+  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
+  {
+    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
+  }
+}
+
+void turnFunction(float distance)
+{
+  float desiredDistance{distance * clicks};
+  while (Lencoder.GetPosition() < desiredDistance && Rencoder.GetPosition() < desiredDistance)
+  {
+    RpidController.SetP(desiredDistance);
+    LpidController.SetP(desiredDistance);
+    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+    RpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+  }
+}
 
 void Robot::AutonomousPeriodic()
 {
-  if (m_autoSelected == kAutoNameCustom)
+  double p = SmartDashboard::GetNumber("P Gain", 0);
+  double i = SmartDashboard::GetNumber("I Gain", 0);
+  double d = SmartDashboard::GetNumber("D Gain", 0);
+  double iz = SmartDashboard::GetNumber("I Zone", 0);
+  double ff = SmartDashboard::GetNumber("Feed Forward", 0);
+  double max = SmartDashboard::GetNumber("Max Output", 0);
+  double min = SmartDashboard::GetNumber("Min Output", 0);
+  double maxV = SmartDashboard::GetNumber("Max Velocity", 0);
+  double minV = SmartDashboard::GetNumber("Min Velocity", 0);
+  double maxA = SmartDashboard::GetNumber("Max Acceleration", 0);
+  double allE = SmartDashboard::GetNumber("Allowed Closed Loop Error", 0);
+
+  // if PID coefficients on SmartDashboard have changed, write new values to controller
+  if ((p != kP))
   {
-    // Custom Auto goes here
+    LpidController.SetP(p);
+    kP = p;
+    RpidController.SetP(p);
+    kP = p;
   }
-  else
+  if ((i != kI))
   {
-    // Default Auto goes here
+    LpidController.SetI(i);
+    kI = i;
+    RpidController.SetI(i);
+    kI = i;
   }
+  if ((d != kD))
+  {
+    LpidController.SetD(d);
+    kD = d;
+    RpidController.SetD(d);
+    kD = d;
+  }
+  if ((iz != kIz))
+  {
+    LpidController.SetIZone(iz);
+    kIz = iz;
+    RpidController.SetIZone(iz);
+    kIz = iz;
+  }
+  if ((ff != kFF))
+  {
+    LpidController.SetFF(ff);
+    kFF = ff;
+    RpidController.SetFF(ff);
+    kFF = ff;
+  }
+  if ((max != kMaxOutput) || (min != kMinOutput))
+  {
+    LpidController.SetOutputRange(min, max);
+    RpidController.SetOutputRange(min, max);
+    kMinOutput = min;
+    kMaxOutput = max;
+  }
+  if ((maxV != kMaxVel))
+  {
+    LpidController.SetSmartMotionMaxVelocity(maxV);
+    RpidController.SetSmartMotionMaxVelocity(maxV);
+    kMaxVel = maxV;
+  }
+  if ((minV != kMinVel))
+  {
+    LpidController.SetSmartMotionMinOutputVelocity(minV);
+    RpidController.SetSmartMotionMinOutputVelocity(minV);
+    kMinVel = minV;
+  }
+  if ((maxA != kMaxAcc))
+  {
+    LpidController.SetSmartMotionMaxAccel(maxA);
+    RpidController.SetSmartMotionMaxAccel(maxA);
+    kMaxAcc = maxA;
+  }
+  if ((allE != kAllErr))
+  {
+    LpidController.SetSmartMotionAllowedClosedLoopError(allE);
+    RpidController.SetSmartMotionAllowedClosedLoopError(allE);
+    allE = kAllErr;
+  }
+
+  float distance;
+  float desiredDistance{distance * clicks};
+  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
+  {
+    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
+  }
+  distance = 0;
+  Rencoder.SetPosition(0);
+  Lencoder.SetPosition(0);
+  forwardFunction(20);
+  //turnFunction(7);
+  /*
+    double SetPoint, ProcessVariable, RProcessVariable;
+    bool mode = SmartDashboard::GetBoolean("Mode", false);
+    if (mode)
+    {
+      SetPoint = SmartDashboard::GetNumber("Set Degrees", 0) * clicks;
+      LpidController.SetReference(SetPoint, ControlType::kSmartMotion);
+      RpidController.SetReference(SetPoint, ControlType::kSmartMotion);
+      ProcessVariable = Lencoder.GetPosition();
+      RProcessVariable = Rencoder.GetPosition();
+    }
+    else
+    {
+      SetPoint = SmartDashboard::GetNumber("Set Position", 0) * clicks;
+      /*
+       * As with other PID modes, Smart Motion is set by calling the
+       * SetReference method on an existing pid object and setting
+       * the control type to kSmartMotion
+       */
+  /*
+      LpidController.SetReference(SetPoint, ControlType::kSmartMotion);
+      RpidController.SetReference(-SetPoint, ControlType::kSmartMotion);
+      ProcessVariable = Lencoder.GetPosition();
+      RProcessVariable = Rencoder.GetPosition();
+    }
+
+    SmartDashboard::PutNumber("Set Point", SetPoint);
+    SmartDashboard::PutNumber("Process Variable", ProcessVariable);
+    SmartDashboard::PutNumber("Output", LDriveNeo.GetAppliedOutput());
+*/
 }
 
-void Robot::TeleopInit()
-{
-  LDriveNeo2.Follow(LDriveNeo);
-  RDriveNeo2.Follow(RDriveNeo);
-
-  LDriveNeo.SetSmartCurrentLimit(currentLimit);
-  RDriveNeo.SetSmartCurrentLimit(currentLimit);
-}
+void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic()
 {
   Update_Limelight_Tracking();
-  leftAxisX = controller.GetRawAxis(0);
-  leftAxisY = controller.GetRawAxis(1);
-  rightAxisX = controller.GetRawAxis(2);
-  rightAxisY = controller.GetRawAxis(3);
 
-  leftTrigger = controller.GetRawButton(7);
-
-  //safety button not held
   // Deadzone for drive
   if (rightAxisX > -0.05 && rightAxisX < 0.05)
-  {
     rightAxisX = 0;
-  }
 
   if (leftAxisY > -0.05 && leftAxisY < 0.05)
-  {
     leftAxisY = 0;
-  }
 
   //  Non-linear drive math
   driveMinPower = .15;
   modValue = 1;
 
   if (leftAxisY > 0)
-  {
     driveStraight = (driveMinPower + (1 - driveMinPower) * (modValue * (pow(leftAxisY, 3) + (1 - modValue) * leftAxisY)));
-  } else if (leftAxisY < 0) {
+  else if (leftAxisY < 0)
     driveStraight = ((-1 * driveMinPower) + (1 - driveMinPower) * (modValue * (pow(leftAxisY, 3) + (1 - modValue) * leftAxisY)));
-  } else {
+  else
     driveStraight = 0;
-  }
 
   if (rightAxisX > 0)
-  {
     driveTurn = (turnMinPower + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX, 3) + (1 - modValueTurn) * rightAxisX)));
-  } else if (rightAxisX < 0) {
+  else if (rightAxisX < 0)
     driveTurn = ((-1 * turnMinPower) + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX, 3) + (1 - modValueTurn) * rightAxisX)));
-  } else {
+  else
     driveTurn = 0;
-  }
 
   ArcadeDrive.ArcadeDrive(-1 * driveStraight, driveTurn);
 
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double ta = table->GetNumber("ta", 0.0);
 
-  if (/*!breakBeamTop.Get() &&*/ leftTrigger)
-  {
-    intakeMotor.Set(100);
-  } else {
-    intakeMotor.Set(0);
-  }
+  SmartDashboard::PutBoolean("Beam", breakBeamBottomIn.Get());
 
-  if (btnStart /*&& !breakBeamBottom.Get()*/)
-  {
-    conveyorMotor.Set(100);
-  }
+  /*
+  if (!breakBeamTopIn.Get() && leftTrigger)
+    intakeMotor.Set(100);
   else
-  {
-    conveyorMotor.Set(0);
-  }
+    intakeMotor.Set(0);
+
+  if (/*btnStart && !breakBeamBottomIn.Get())
+    conveyorMotor.Set(100);
+  else
+    conveyorMotor.Set(0);*/
 }
 
 void Robot::TestPeriodic() {}
@@ -323,20 +413,15 @@ void Robot::Update_Limelight_Tracking()
   else
   {
     m_LimelightHasTarget = true;
-
     // Proportional steering
     m_LimelightTurnCmd = tx * STEER_K;
     m_LimelightTurnCmd = clamp(m_LimelightTurnCmd, -MAX_STEER, MAX_STEER);
-
     // drive forward until the target area reaches our desired area
-    if (ta > 49.0)
-    { //change 11.5 to new value for dual target
-      m_LimelightDriveCmd = 0;
-    }
+    if (ta > 49.0)             //
+      m_LimelightDriveCmd = 0; //change 11.5 to new value for dual target
     else
-    {
       m_LimelightDriveCmd = (DESIRED_TARGET_AREA - ta) * DRIVE_K;
-    }
+
     m_LimelightDriveCmd = clamp(m_LimelightDriveCmd, -MAX_DRIVE, MAX_DRIVE);
   }
 }
