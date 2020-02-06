@@ -1,20 +1,16 @@
 #pragma once
 
 #include <string>
-
-#include <frc/TimedRobot.h>
-#include <frc/smartdashboard/SendableChooser.h>
-#include <frc/Joystick.h>
-#include <frc/drive/DifferentialDrive.h>
-
-
+#include <frcUserProgram/TimedRobot.h>
+#include <frcUserProgram/smartdashboard/SendableChooser.h>
+#include <frcUserProgram/Joystick.h>
+#include <frcUserProgram/drive/DifferentialDrive.h>
 #include <rev/CANSparkMax.h>
 #include <ctre/Phoenix.h>
 
 #ifndef Auto_H_
 #define Auto_H_
 
-extern int timer;
 
 void Auto1();
 void Auto2();

@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef subSystems
-#define subSystems
+#define subSystem
 
 void slider();
 void lift();
