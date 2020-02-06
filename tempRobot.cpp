@@ -64,32 +64,26 @@ const double MaxRPM = 5700;
 int currentLimit{50};
 
 //      Joysticks     //
-double leftAxisX{controller.GetRawAxis(0)};
-double leftAxisY{controller.GetRawAxis(1)};
-double rightAxisX{controller.GetRawAxis(2)};
-double rightAxisY{controller.GetRawAxis(3)};
+double leftAxisX{driveController.GetRawAxis(0)};
+double leftAxisY{driveController.GetRawAxis(1)};
+double rightAxisX{driveController.GetRawAxis(2)};
+double rightAxisY{driveController.GetRawAxis(3)};
 
 //      ABXY Buttons      //
-bool btnX{controller.GetRawButton(1)};
-bool btnA{controller.GetRawButton(2)};
-bool btnB{controller.GetRawButton(3)};
-bool btnY{controller.GetRawButton(4)};
+bool btnX{driveController.GetRawButton(1)};
+bool btnA{driveController.GetRawButton(2)};
+bool btnB{driveController.GetRawButton(3)};
+bool btnY{driveController.GetRawButton(4)};
 
 //      Bumpers && Triggers     //
-bool leftBumper{controller.GetRawButton(5)};
-bool rightBumper{controller.GetRawButton(6)};
-bool leftTrigger{controller.GetRawButton(7)};
-bool rightTrigger{controller.GetRawButton(8)};
+bool leftBumper{driveController.GetRawButton(5)};
+bool rightBumper{driveController.GetRawButton(6)};
+bool leftTrigger{driveController.GetRawButton(7)};
+bool rightTrigger{driveController.GetRawButton(8)};
 
 //      Misc. Buttons     //
-bool btnBack{controller.GetRawButton(9)};
-bool btnStart{controller.GetRawButton(10)};
-
-//      Flight Stick      //
-bool trigger{flightStick.GetRawButton(1)};
-bool btnSafety{flightStick.GetRawButton(11)};
-double switchEnable{flightStick.GetRawAxis(3)};
-int hat{flightStick.GetPOV(0)};
+bool btnBack{driveController.GetRawButton(9)};
+bool btnStart{driveController.GetRawButton(10)};
 
 //      Lift Variables      //
 bool lifting;

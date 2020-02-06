@@ -1,14 +1,18 @@
+#include <iostream>
+#include "frc/DoubleSolenoid.h"
 #include "commonVariables.h"
-#include "motorDefine.h"
+/*
+using namespace frc;
 
-DoubleSolenoid hoodSolenoid(7, 8);
+frc::DoubleSolenoid hoodSolenoid;
 
 void hood() {
 
-if (btnA) {
-    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
-} else if (!btnA) {
-    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
-}
+    if (btnA) {
+        hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
+    } else if (!btnA) {
+        hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
+    }
 
 }
+*/
