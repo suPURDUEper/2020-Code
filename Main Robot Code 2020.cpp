@@ -1,24 +1,31 @@
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc2/command/CommandScheduler.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <networktables/NetworkTable.h>
 #include <cameraserver/CameraServer.h>
-#include <frc/DigitalInput.h>
+#include <frc/DoubleSolenoid.h>
 #include <frc/DigitalOutput.h>
+#include <frc/DigitalInput.h>
 #include <rev/CANSparkMax.h>
 #include <frc/Joystick.h>
+#include <ctre/Phoenix.h>
 #include <frc/Solenoid.h>
 #include <frc/Talon.h>
 #include <iostream>
 #include "Robot.h"
 
 #include "commonVariables.h"
+#include "Constants.h"
 #include "subSystems.h"
 
 using namespace rev;
 using namespace frc;
 using namespace std;
+using namespace ctre;
+
+CameraServer::GetInstance().StartAutomaticCapture(0);
 
 double clamp(double in, double minval, double maxval)
 {
@@ -29,8 +36,13 @@ double clamp(double in, double minval, double maxval)
   return in;
 }
 
-Joystick controller{0};
-Joystick flightStick{1};
+DigitalInput breakBeamTopIn(0);
+DigitalOutput breakBeamTopOut(1);
+DigitalInput breakBeamBottomIn(2);
+DigitalOutput breakBeamBottomOut(3);
+
+Joystick driveController{0};
+Joystick operatorController{1};
 
 //      Motors      //
 
@@ -39,6 +51,10 @@ CANSparkMax LDriveMotor{1, CANSparkMax::MotorType::kBrushless};
 CANSparkMax LDriveMotor2{2, CANSparkMax::MotorType::kBrushless};
 CANSparkMax RDriveMotor{3, CANSparkMax::MotorType::kBrushless};
 CANSparkMax RDriveMotor2{4, CANSparkMax::MotorType::kBrushless};
+WPI_TalonFX flyWheelL{5};
+WPI_TalonFX flyWheelR{6};
+CANSparkMax Neo1{7, kBrushless};
+CANSparkMax Neo2{8, kBrushless};
 WPI_TalonSRX conveyorMotor{10};
 
 CANPIDController LpidController = LDriveMotor.GetPIDController();
@@ -57,43 +73,63 @@ const double MaxRPM = 5700;
 
 int currentLimit{50};
 
-//      Joysticks     //
-double leftAxisX{controller.GetRawAxis(0)};
-double leftAxisY{controller.GetRawAxis(1)};
-double rightAxisX{controller.GetRawAxis(2)};
-double rightAxisY{controller.GetRawAxis(3)};
+//      XY Axes Defines Driver     //
+double leftAxisX0{driveController.GetRawAxis(0)};
+double leftAxisY0{driveController.GetRawAxis(1)};
+double rightAxisX0{driveController.GetRawAxis(2)};
+double rightAxisY0{driveController.GetRawAxis(3)};
 
-//      ABXY Buttons      //
-bool btnX{controller.GetRawButton(1)};
-bool btnA{controller.GetRawButton(2)};
-bool btnB{controller.GetRawButton(3)};
-bool btnY{controller.GetRawButton(4)};
+//      XABY Button Defines Driver      //
+bool btnX0{driveController.GetRawButton(0)};
+bool btnA0{driveController.GetRawButton(1)};
+bool btnB0{driveController.GetRawButton(2)};
+bool btnY0{driveController.GetRawButton(3)};
 
-//      Bumpers && Triggers     //
-bool leftBumper{controller.GetRawButton(5)};
-bool rightBumper{controller.GetRawButton(6)};
-bool leftTrigger{controller.GetRawButton(7)};
-bool rightTrigger{controller.GetRawButton(8)};
+//      Bumper and Trigger Defines Driver     //
+bool leftBumper0{driveController.GetRawButton(4)};
+bool rightBumper0{driveController.GetRawButton(5)};
+bool leftTrigger0{driveController.GetRawButton(6)};
+bool rightTrigger0{driveController.GetRawButton(7)};
 
-//      Misc. Buttons     //
-bool btnBack{controller.GetRawButton(9)};
-bool btnStart{controller.GetRawButton(10)};
+//      Misc. Button Defines Driver     //
+bool btnBack0{driveController.GetRawButton(8)};
+bool btnStart0{driveController.GetRawButton(9)};
+bool leftJoystickClick0{driveController.GetRawButton(10)};
+bool rightJoystickClick0{driveController.GetRawButton(11)};
 
-//      Flight Stick      //
-bool trigger{flightStick.GetRawButton(1)};
-bool btnSafety{flightStick.GetRawButton(11)};
-double switchEnable{flightStick.GetRawAxis(3)};
-int hat{flightStick.GetPOV(0)};
+//      XY Operator Axes Defines     //
+double leftAxisX1{operatorController.GetRawAxis(0)};
+double leftAxisY1{operatorController.GetRawAxis(1)};
+double rightAxisX1{operatorController.GetRawAxis(2)};
+double rightAxisY1{operatorController.GetRawAxis(3)};
 
-//      Lift Variables      //
-bool lifting;
-bool liftTrigger;
+//      XABY Operator Button Defines      //
+bool btnX1{operatorController.GetRawButton(0)};
+bool btnA1{operatorController.GetRawButton(1)};
+bool btnB1{operatorController.GetRawButton(2)};
+bool btnY1{operatorController.GetRawButton(3)};
 
-//      Sensors     //
-DigitalInput breakBeamBottomIn(0);
-DigitalOutput breakBeamBottomOut(1);
-DigitalInput breakBeamTopIn(2);
-DigitalOutput breakBeamTopOut(3);
+//      Operator Bumper and Trigger Defines     //
+bool leftBumper1{operatorController.GetRawButton(4)};
+bool rightBumper1{operatorController.GetRawButton(5)};
+bool leftTrigger1{operatorController.GetRawButton(6)};
+bool rightTrigger1{operatorController.GetRawButton(7)};
+
+//      Operator Misc. Button Defines     //
+bool btnBack1{operatorController.GetRawButton(8)};
+bool btnStart1{operatorController.GetRawButton(9)};
+bool leftJoystickClick1{operatorController.GetRawButton(10)};
+bool rightJoystickClick1{operatorController.GetRawButton(11)};
+
+//      Break Beam Variables     //
+bool breakBeamBottom{breakBeamBottomIn.Get()};
+bool breakBeamTop{breakBeamTopIn.Get()};
+
+//      Misc. Defines     //
+int ballCount;
+bool firstTop{true};
+bool firstBottom{true};
+int timer;
 
 //      Drive Variables     //
 double driveStraight{0};
@@ -107,14 +143,31 @@ bool nitros{false};
 // Drive Train
 DifferentialDrive ArcadeDrive(LDriveMotor, RDriveMotor);
 
-//      Solenoids     //
+string _sb;
+int _loops = 0;
 
 void Robot::RobotInit()
 {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
-  frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
-  frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+  SmartDashboard::PutData("Auto Modes", &m_chooser);
+  CameraServer::GetInstance()->StartAutomaticCapture(0);
+
+  flyWheelL.ConfigFactoryDefault();
+  /* first choose the sensor */
+  flyWheelL.ConfigSelectedFeedbackSensor(TalonFXFeedbackDevice, 0, kTimeoutMs);
+  flyWheelL.SetSensorPhase(true);
+
+  /* set the peak and nominal outputs */
+  flyWheelL.ConfigNominalOutputForward(0, kTimeoutMs);
+  flyWheelL.ConfigNominalOutputReverse(0, kTimeoutMs);
+  flyWheelL.ConfigPeakOutputForward(1, kTimeoutMs);
+  flyWheelL.ConfigPeakOutputReverse(-1, kTimeoutMs);
+  /* set closed loop gains in slot0 */
+  flyWheelL.Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+  flyWheelL.Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+  flyWheelL.Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+  flyWheelL.Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
 
   LDriveMotor.RestoreFactoryDefaults();
   RDriveMotor.RestoreFactoryDefaults();
@@ -165,14 +218,15 @@ void Robot::RobotInit()
   SmartDashboard::PutBoolean("Mode", true);
 }
 
-void Robot::RobotPeriodic() {}
+void Robot::RobotPeriodic() { frc2::CommandScheduler::GetInstance().Run(); }
 
 void Robot::AutonomousInit()
 {
+  m_autonomousCommand = m_container.GetAutonomousCommand();
   m_autoSelected = m_chooser.GetSelected();
   // m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
-  std::cout << "Auto selected: " << m_autoSelected << std::endl;
+  cout << "Auto selected: " << m_autoSelected << endl;
 
   if (m_autoSelected == kAutoNameCustom)
   {
@@ -182,20 +236,15 @@ void Robot::AutonomousInit()
   {
     // Default Auto goes here
   }
+
+  if (m_autonomousCommand != nullptr)
+  {
+    m_autonomousCommand->Schedule();
+  }
 }
 int clicks = 21;
 
 void forwardFunction(float distance)
-{
-  float desiredDistance{distance / 2};
-  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
-  {
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
-  }
-}
-
-void turnFunction(float distance)
 {
   float desiredDistance{distance * clicks};
   while (Lencoder.GetPosition() < desiredDistance && Rencoder.GetPosition() < desiredDistance)
@@ -204,6 +253,16 @@ void turnFunction(float distance)
     LpidController.SetP(desiredDistance);
     LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
     RpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+  }
+}
+
+void turnFunction(float distance)
+{
+  float desiredDistance{distance / 2};
+  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
+  {
+    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
   }
 }
 
@@ -333,43 +392,111 @@ void Robot::AutonomousPeriodic()
 */
 }
 
-void Robot::TeleopInit() {}
+double FalconVelocity;
+
+void Robot::TeleopInit()
+{
+  // This makes sure that the autonomous stops running when
+  // teleop starts running. If you want the autonomous to
+  // continue until interrupted by another command, remove
+  // this line or comment it out
+  if (m_autonomousCommand != nullptr)
+  {
+    m_autonomousCommand->Cancel();
+    m_autonomousCommand = nullptr;
+  }
+}
+
+void ball()
+{
+  int counter;
+  counter++;
+  cout << "ball " << counter << endl;
+}
 
 void Robot::TeleopPeriodic()
 {
   Update_Limelight_Tracking();
 
-  // Deadzone for drive
-  if (rightAxisX > -0.05 && rightAxisX < 0.05)
-    rightAxisX = 0;
+  bool btnX{driveController.GetRawButton(0)};
 
-  if (leftAxisY > -0.05 && leftAxisY < 0.05)
-    leftAxisY = 0;
+  SmartDashboard::PutBoolean("Beam", breakBeamBottomIn.Get());
+  SmartDashboard::PutBoolean("Velocity", TestMotor.GetSelectedSensorVelocity(kPIDLoopIdx));
+
+  if (btnX)
+  {
+    TestMotor.Set();
+  }
+
+  double motorOutput{flyWheelL.GetMotorOutputPercent()};
+
+  _sb.append("\tout:");
+  _sb.append(to_string(motorOutput));
+  _sb.append("\tspd:");
+  _sb.append(to_string(flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx)));
+
+  if (btnA)
+  {
+    double targetVelocity_UnitsPer100ms = leftAxisY0 * 500 * 4096 / 600;
+
+    flyWheelL.Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
+
+    _sb.append("\terrNative:");
+    _sb.append(to_string(flyWheelL.GetClosedLoopError(kPIDLoopIdx)));
+    _sb.append("\ttrg:");
+    _sb.append(to_string(targetVelocity_UnitsPer100ms));
+  }
+  else
+  {
+    flyWheelL.Set(ControlMode::PercentOutput, leftAxisY0);
+  }
+
+  if (++_loops >= 10)
+  {
+    _loops = 0;
+    printf("%s\n", _sb.c_str());
+  }
+  _sb.clear();
+  // Deadzone for drive
+  if (rightAxisX0 > -0.05 && rightAxisX0 < 0.05)
+    rightAxisX0 = 0;
+
+  if (leftAxisY0 > -0.05 && leftAxisY0 < 0.05)
+    leftAxisY0 = 0;
 
   //  Non-linear drive math
   driveMinPower = .15;
   modValue = 1;
 
-  if (leftAxisY > 0)
-    driveStraight = (driveMinPower + (1 - driveMinPower) * (modValue * (pow(leftAxisY, 3) + (1 - modValue) * leftAxisY)));
-  else if (leftAxisY < 0)
-    driveStraight = ((-1 * driveMinPower) + (1 - driveMinPower) * (modValue * (pow(leftAxisY, 3) + (1 - modValue) * leftAxisY)));
+  if (leftAxisY0 > 0)
+    driveStraight = (driveMinPower + (1 - driveMinPower) * (modValue * (pow(leftAxisY0, 3) + (1 - modValue) * leftAxisY0)));
+  else if (leftAxisY0 < 0)
+    driveStraight = ((-1 * driveMinPower) + (1 - driveMinPower) * (modValue * (pow(leftAxisY0, 3) + (1 - modValue) * leftAxisY0)));
   else
     driveStraight = 0;
 
-  if (rightAxisX > 0)
-    driveTurn = (turnMinPower + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX, 3) + (1 - modValueTurn) * rightAxisX)));
-  else if (rightAxisX < 0)
-    driveTurn = ((-1 * turnMinPower) + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX, 3) + (1 - modValueTurn) * rightAxisX)));
+  if (rightAxisX0 > 0)
+    driveTurn = (turnMinPower + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX0, 3) + (1 - modValueTurn) * rightAxisX0)));
+  else if (rightAxisX0 < 0)
+    driveTurn = ((-1 * turnMinPower) + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX0, 3) + (1 - modValueTurn) * rightAxisX0)));
   else
     driveTurn = 0;
 
   ArcadeDrive.ArcadeDrive(-1 * driveStraight, driveTurn);
 
-  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double ta = table->GetNumber("ta", 0.0);
 
-  SmartDashboard::PutBoolean("Beam", breakBeamBottomIn.Get());
+  if (btny0)
+  {
+    Neo1.Set(1);
+    Neo2.Set(1);
+  }
+  else
+  {
+    Neo1.Set(0);
+    Neo2.Set(0);
+  }
 
   /*
   if (!breakBeamTopIn.Get() && leftTrigger)
@@ -394,11 +521,11 @@ void Robot::Update_Limelight_Tracking()
   const double DRIVE_K = 0.26;
 
   //Area of tape when robot has reached the goal
-  const double DESIRED_TARGET_AREA = 49.0; //changed from 13.0
+  const double DESIRED_TARGET_AREA = 49.0;
   const double MAX_DRIVE = 0.25;
   const double MAX_STEER = 0.4f;
 
-  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double tx = table->GetNumber("tx", 0.0);
   double ty = table->GetNumber("ty", 0.0);
   double ta = table->GetNumber("ta", 0.0);
