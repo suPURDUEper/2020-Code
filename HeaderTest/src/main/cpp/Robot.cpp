@@ -17,6 +17,8 @@
 #include "Robot.h"
 
 #include "commonVariables.h"
+#include "driveMath.h"
+#include "Autonomous.h"
 #include "Constants.h"
 #include "subSystems.h"
 
@@ -45,20 +47,11 @@ Joystick operatorController{1};
 //      Motors      //
 
 WPI_TalonSRX intakeMotor{0};
-CANSparkMax LDriveMotor{1, CANSparkMax::MotorType::kBrushless};
-CANSparkMax LDriveMotor2{2, CANSparkMax::MotorType::kBrushless};
-CANSparkMax RDriveMotor{3, CANSparkMax::MotorType::kBrushless};
-CANSparkMax RDriveMotor2{4, CANSparkMax::MotorType::kBrushless};
 WPI_TalonFX flyWheelL{5};
 WPI_TalonFX flyWheelR{6};
 CANSparkMax Neo1{7, CANSparkMax::MotorType::kBrushless};
 CANSparkMax Neo2{8, CANSparkMax::MotorType::kBrushless};
 WPI_TalonSRX conveyorMotor{10};
-
-CANPIDController LpidController = LDriveMotor.GetPIDController();
-CANEncoder Lencoder = LDriveMotor.GetEncoder();
-CANPIDController RpidController = RDriveMotor.GetPIDController();
-CANEncoder Rencoder = RDriveMotor.GetEncoder();
 
 // default PID coefficients
 double kP = 5e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
@@ -128,14 +121,9 @@ int ballCount;
 bool firstTop{true};
 bool firstBottom{true};
 int timer;
+int clicks = 21;
 
 //      Drive Variables     //
-double driveStraight{0};
-double driveTurn{0};
-float driveMinPower{0.3};
-float turnMinPower{0.4};
-float modValue{0.5};
-float modValueTurn{0.5};
 bool nitros{false};
 
 //      Drive Train     //
@@ -162,16 +150,21 @@ void Robot::RobotInit()
   flyWheelL.ConfigNominalOutputReverse(0, kTimeoutMs);
   flyWheelL.ConfigPeakOutputForward(1, kTimeoutMs);
   flyWheelL.ConfigPeakOutputReverse(-1, kTimeoutMs);
-  /* set closed loop gains in slot0 */
+  // set motor follow //
+  flyWheelR.Follow(flyWheelL);
+  flyWheelR.SetInverted(true);
+
   flyWheelL.Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
   flyWheelL.Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
-  flyWheelL.Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-  flyWheelL.Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+  flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
+  flyWheelL.Config_kD(kPIDLoopIdx, 0, kTimeoutMs);
 
   LDriveMotor.RestoreFactoryDefaults();
   RDriveMotor.RestoreFactoryDefaults();
   LDriveMotor2.Follow(LDriveMotor);
   RDriveMotor2.Follow(RDriveMotor);
+
+  //        SparkMAX PID defines        //
 
   LpidController.SetP(kP);
   LpidController.SetI(kI);
@@ -217,11 +210,13 @@ void Robot::RobotInit()
   SmartDashboard::PutBoolean("Mode", true);
 }
 
-void Robot::RobotPeriodic() { frc2::CommandScheduler::GetInstance().Run(); }
+void Robot::RobotPeriodic()
+{
+  frc2::CommandScheduler::GetInstance().Run();
+}
 
 void Robot::AutonomousInit()
 {
-  m_autonomousCommand = m_container.GetAutonomousCommand();
   m_autoSelected = m_chooser.GetSelected();
   //m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
@@ -241,32 +236,40 @@ void Robot::AutonomousInit()
     m_autonomousCommand->Schedule();
   }
 }
-int clicks = 21;
 
-void forwardFunction(float distance)
+void Robot::AutonomousPeriodic() {}
+
+void Robot::TeleopInit()
 {
-  float desiredDistance{distance * clicks};
-  while (Lencoder.GetPosition() < desiredDistance && Rencoder.GetPosition() < desiredDistance)
+  // This makes sure that the autonomous stops running when
+  // teleop starts running. If you want the autonomous to
+  // continue until interrupted by another command, remove
+  // this line or comment it out.
+  if (m_autonomousCommand != nullptr)
   {
-    RpidController.SetP(desiredDistance);
-    LpidController.SetP(desiredDistance);
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
+    m_autonomousCommand->Cancel();
+    m_autonomousCommand = nullptr;
   }
+  /*
+  SmartDashboard::PutNumber("Set FlyWheel Velocity", 0);
+  SmartDashboard::PutNumber("SetP", 0);
+  SmartDashboard::PutNumber("SetI", 0);
+  SmartDashboard::PutNumber("SetD", 0);
+  SmartDashboard::PutNumber("SetF", 0); */
 }
 
-void turnFunction(float distance)
+void ball() // This will increment the number of balls
 {
-  float desiredDistance{distance / 2};
-  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
-  {
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
-  }
+  ballCount++;
+  cout << "ball " << ballCount << endl;
 }
 
-void Robot::AutonomousPeriodic()
+void Robot::TeleopPeriodic()
 {
+  Update_Limelight_Tracking();
+
+  //--------------- PID for SparkMax ------------------------------------//
+
   double p = SmartDashboard::GetNumber("P Gain", 0);
   double i = SmartDashboard::GetNumber("I Gain", 0);
   double d = SmartDashboard::GetNumber("D Gain", 0);
@@ -279,7 +282,7 @@ void Robot::AutonomousPeriodic()
   double maxA = SmartDashboard::GetNumber("Max Acceleration", 0);
   double allE = SmartDashboard::GetNumber("Allowed Closed Loop Error", 0);
 
-  // if PID coefficients on the SmartDashboard have changed, write new values to controller //
+  //-------------- if PID coefficients on the SmartDashboard have changed, write new values to controller, for SPARKMAX -----------------------------//
 
   if ((p != kP)) // Reset the Proportional if it has changed
   {
@@ -350,150 +353,35 @@ void Robot::AutonomousPeriodic()
     kMaxAcc = maxA;
   }
 
-  if ((allE != kAllErr)) // Reset the allowed error if it has changed
+  if ((allE != kAllErr)) // Reset the allowed error if it has changed, SPARKMAX PID
   {
     LpidController.SetSmartMotionAllowedClosedLoopError(allE);
     RpidController.SetSmartMotionAllowedClosedLoopError(allE);
     allE = kAllErr;
   }
 
-  float distance;
-  float desiredDistance{distance * clicks};
-  while (Rencoder.GetPosition() != desiredDistance && Lencoder.GetPosition() != desiredDistance)
-  {
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
-  }
-  distance = 0;
-  Rencoder.SetPosition(0);
-  Lencoder.SetPosition(0);
-  forwardFunction(20);
-  //turnFunction(7);
-  /*
-    double SetPoint, ProcessVariable, RProcessVariable;
-    bool mode = SmartDashboard::GetBoolean("Mode", false);
-    if (mode)
-    {
-      SetPoint = SmartDashboard::GetNumber("Set Degrees", 0) * clicks;
-      LpidController.SetReferencce(SetPoint, ControlType::kSmartMotion);
-      RpidController.SetReference(SetPoint, ControlType::kSmartMotion);
-      ProcessVariable = Lencoder.GetPosition();
-      RProcessVariable = Rencoder.GetPosition();
-    }
-    else
-    {
-      SetPoint = SmartDashboard::GetNumber("Set Position", 0) * clicks
-      /*
-      * As with other PID modes, Smart Motion is set by calling the
-      * SetReference method on an existing pid object and setting
-      * the control type to kSmartMotion
-      */
-  /*
-      LpidController.SetReference(SetPoint, ControlType::kSmartMotion);
-      RpidController.SetReference(-SetPoint, ControlType::kSmartMotion);
-      ProcessVariable = Lencoder.GetPosition();
-      RProcessVariable = Rencoder.GetPosition();
-    }
-
-    SmartDashboard::PutNumber("Set Point", SetPoint);
-    SmartDashboard::PutNumber("Process Variable", ProcessVariable);
-    SmartDashboard::PutNumber("Output", LDriveNeo.GetAppliedOutput());
-  */
-}
-
-//double FalconVelocity;
-
-void Robot::TeleopInit()
-{
-  // This makes sure that the autonomous stops running when
-  // teleop starts running. If you want the autonomous to
-  // continue until interrupted by another command, remove
-  // this line or comment it out.
-  if (m_autonomousCommand != nullptr)
-  {
-    m_autonomousCommand->Cancel();
-    m_autonomousCommand = nullptr;
-  }
-}
-
-void ball() // This will increment the number of balls
-{
-  int counter;
-  counter++;
-  cout << "ball " << counter << endl;
-}
-
-void Robot::TeleopPeriodic()
-{
-  Update_Limelight_Tracking();
-
   btnX0 = driveController.GetRawButton(0);
 
+  double flyWheelP = SmartDashboard::GetNumber("SetP", 0.1097);
+  double flyWheelI = SmartDashboard::GetNumber("SetI", 0.22);
+  double flyWheelD = SmartDashboard::GetNumber("SetD", 0);
+  double flyWheelV = SmartDashboard::GetNumber("Set FlyWheel Velocity", 0);
+
   SmartDashboard::PutBoolean("Beam", breakBeamBottomIn.Get());
-  SmartDashboard::PutNumber("Velocity", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx));
   SmartDashboard::PutNumber("Balls", ballCount);
+  SmartDashboard::PutNumber("FlyWheel Velocity", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx));
 
-  double motorOutput{flyWheelL.GetMotorOutputPercent()};
+  //            Falcon PID configs              //
 
-  _sb.append("\tout:");
-  _sb.append(to_string(motorOutput));
-  _sb.append("\tspd:");
-  _sb.append(to_string(flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx)));
+  flyWheelL.Set(ControlMode::Velocity, flyWheelV);
 
-  if (btnA0)
-  {
-    double targetVelocity_UnitsPer100ms = leftAxisY0 * 500 * 4096 / 600;
-
-    flyWheelL.Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
-
-    _sb.append("\terrNative:");
-    _sb.append(to_string(flyWheelL.GetClosedLoopError(kPIDLoopIdx)));
-    _sb.append("\ttrg");
-    _sb.append(to_string(targetVelocity_UnitsPer100ms));
-  }
-  else
-  {
-    flyWheelL.Set(ControlMode::PercentOutput, leftAxisY0);
-  }
-
-  if (++_loops >= 10) // print every 10 times
-  {
-    _loops = 0;
-    printf("%s\n", _sb.c_str());
-  }
-  _sb.clear();
-
-  // Deadzone for drive
-  if (rightAxisX0 > -0.05 && rightAxisX0 < 0.05)
-    rightAxisX0 = 0;
-
-  if (leftAxisY0 > -0.05 && leftAxisY0 < 0.05)
-    leftAxisY0 = 0;
-
-  // Non-linear drive math
-  driveMinPower = .15;
-  modValue = 1;
-
-  if (leftAxisY0 > 0)
-    driveStraight = (driveMinPower + (1 - driveMinPower) * (modValue * (pow(leftAxisY0, 3) + (1 - modValue) * leftAxisY0)));
-  else if (leftAxisY0 < 0)
-    driveStraight = ((-1 * driveMinPower) + (1 - driveMinPower) * (modValue * (pow(leftAxisY0, 3) + (1 - modValue) * leftAxisY0)));
-  else
-    driveStraight = 0;
-
-  if (rightAxisX0 > 0)
-    driveTurn = (turnMinPower + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX0, 3) + (1 - modValueTurn) * rightAxisX0)));
-  else if (rightAxisX0 < 0)
-    driveTurn = ((-1 * turnMinPower) + (1 - turnMinPower) * (modValueTurn * (pow(rightAxisX0, 3) + (1 - modValueTurn) * rightAxisX0)));
-  else
-    driveTurn = 0;
-
-  ArcadeDrive.ArcadeDrive(-1 * driveStraight, driveTurn);
+  ArcadeDrive.ArcadeDrive(-1 * straightMath(0.15, 1, leftAxisY0), turnMath(0.4, 0.5, rightAxisX0));
 
   shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
   double ta = table->GetNumber("ta", 0.0);
 
+  // Test Code // to be removed shortly
   if (btnY0)
   {
     Neo1.Set(1);
