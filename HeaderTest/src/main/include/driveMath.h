@@ -13,9 +13,11 @@ double straightMath(float driveMinPower, float modValue, double leftAxisY0)
     else
         driveStraight = 0;
 
-    if (driveStraight > 0.7) {
+    if (driveStraight > 0.7) 
         driveStraight = 0.7;
-    }
+
+    if (driveStraight < -0.7) 
+        driveStraight = -0.7;
 
     return driveStraight;
 }
@@ -30,9 +32,11 @@ double turnMath(float turnMinPower, float modValueTurn, double rightAxisX0)
     else
         driveTurn = 0;
 
-    if (driveTurn > 0.7) {
+    if (driveTurn > 0.7) 
         driveTurn = 0.7;
-    }
+
+    if (driveTurn < -0.7)
+        driveTurn = -0.7;
 
     return driveTurn;
 }

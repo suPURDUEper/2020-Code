@@ -60,7 +60,7 @@ WPI_TalonFX climbL{14};
 WPI_TalonFX climbR{15};
 
 //      Solenoids     //
-Solenoid brake{0};
+Solenoid brakeLift{0};
 DoubleSolenoid intakeSolenoid{1, 2};
 DoubleSolenoid hoodSolenoid{3, 4};
 
@@ -145,7 +145,7 @@ int _loops = 0;
 
 void Robot::RobotInit()
 {
-  brake.Set(false);
+  brakeLift.Set(false);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   SmartDashboard::PutData("Auto Modes", &m_chooser);
@@ -170,6 +170,9 @@ void Robot::RobotInit()
   flyWheelL.Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
   flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
   flyWheelL.Config_kD(kPIDLoopIdx, 0, kTimeoutMs);
+
+  flyWheelL.SetNeutralMode(Coast);
+  flyWheelR.SetNeutralMode(Coast);
 
   climbR.SetInverted(true);
 
@@ -387,35 +390,51 @@ void Robot::TeleopPeriodic()
 
   //            Falcon PID configs              //
 
-
   //flyWheelL.Set(ControlMode::Velocity, flyWheelV);
-
+  conveyorMotor.Set(conveyor());
   //three speed shooter control
-  if (rightTrigger0) {
-    flyWheelL.Set(ControlMode::Velocity, launcher());
+  if (rightTrigger0)
+  {
+    flyWheelL.Set(launcher());
+  } 
+  else
+  {
+    flyWheelL.Set(0);
   }
 
-  if (leftTrigger1) {
+
+
+  if (leftTrigger1)
+  {
     intakeMotor.Set(.75);
     vMotor1.Set(0.7);
     vMotor2.Set(0.9);
-  } else if (leftBumper1) {
+  }
+  else if (leftBumper1)
+  {
     intakeMotor.Set(0);
     vMotor1.Set(0.7);
     vMotor2.Set(0.9);
-  } else {
+  }
+  else
+  {
     intakeMotor.Set(0);
     vMotor1.Set(0);
     vMotor2.Set(0);
   }
 
-  if (rightBumper1) {
+  if (rightBumper1)
+  {
     climbL.Set(0.8);
     climbR.Set(0.8);
-  } else if (rightTrigger1) {
+  }
+  else if (rightTrigger1)
+  {
     climbL.Set(-0.6);
     climbR.Set(-0.6);
-  } else {
+  }
+  else
+  {
     climbL.Set(0);
     climbR.Set(0);
   }
@@ -425,18 +444,6 @@ void Robot::TeleopPeriodic()
   shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 
   double ta = table->GetNumber("ta", 0.0);
-
-  // Test Code // to be removed shortly
-  if (btnY0)
-  {
-    Neo1.Set(1);
-    Neo2.Set(1);
-  }
-  else
-  {
-    Neo1.Set(0);
-    Neo2.Set(0);
-  }
 }
 
 void Robot::TestPeriodic() {}

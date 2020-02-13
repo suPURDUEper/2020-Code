@@ -1,12 +1,12 @@
 #pragma once
 
-#ifndef subSystems
-#define subSystem
+#ifndef SUBSYSTEMS_H_
+#define SUBSYSTEMS_H_
 
 void slider();
 void lift();
-double launcher();
 void hood();
 void controlPanel();
+double conveyor();
 
 #endif
