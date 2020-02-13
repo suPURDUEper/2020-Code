@@ -5,7 +5,7 @@
 
 void slider();
 void lift();
-void launcher();
+double launcher();
 void hood();
 void controlPanel();
 

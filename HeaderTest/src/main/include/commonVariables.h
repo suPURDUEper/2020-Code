@@ -24,14 +24,14 @@ extern bool btnX1;
 extern bool btnY1;
 
 //      XY Axes Defines      //
-extern int leftAxisX0;
-extern int leftAxisY0;
-extern int rightAxisX0;
-extern int rightAxisY0;
-extern int leftAxisX1;
-extern int leftAxisY1;
-extern int rightAxisX1;
-extern int rightAxisY1;
+extern double leftAxisX0;
+extern double leftAxisY0;
+extern double rightAxisX0;
+extern double rightAxisY0;
+extern double leftAxisX1;
+extern double leftAxisY1;
+extern double rightAxisX1;
+extern double rightAxisY1;
 
 //      Bumper and Trigger Defines        //
 extern bool leftBumper0;
@@ -62,5 +62,6 @@ extern int ballCount;
 extern bool firstBottom;
 extern bool firstTop;
 extern int timer;
+extern int clicks;
 
 #endif

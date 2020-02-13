@@ -15,6 +15,7 @@
 #include <frc/Talon.h>
 #include <iostream>
 #include "Robot.h"
+#include "launcher.h"
 
 #include "commonVariables.h"
 #include "driveMath.h"
@@ -52,6 +53,16 @@ WPI_TalonFX flyWheelR{6};
 CANSparkMax Neo1{7, CANSparkMax::MotorType::kBrushless};
 CANSparkMax Neo2{8, CANSparkMax::MotorType::kBrushless};
 WPI_TalonSRX conveyorMotor{10};
+WPI_VictorSPX vMotor1{11};
+WPI_VictorSPX vMotor2{12};
+CANSparkMax indexMotor{13, CANSparkMax::MotorType::kBrushed};
+WPI_TalonFX climbL{14};
+WPI_TalonFX climbR{15};
+
+//      Solenoids     //
+Solenoid brake{0};
+DoubleSolenoid intakeSolenoid{1, 2};
+DoubleSolenoid hoodSolenoid{3, 4};
 
 // default PID coefficients
 double kP = 5e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
@@ -134,6 +145,7 @@ int _loops = 0;
 
 void Robot::RobotInit()
 {
+  brake.Set(false);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   SmartDashboard::PutData("Auto Modes", &m_chooser);
@@ -158,6 +170,8 @@ void Robot::RobotInit()
   flyWheelL.Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
   flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
   flyWheelL.Config_kD(kPIDLoopIdx, 0, kTimeoutMs);
+
+  climbR.SetInverted(true);
 
   LDriveMotor.RestoreFactoryDefaults();
   RDriveMotor.RestoreFactoryDefaults();
@@ -373,7 +387,38 @@ void Robot::TeleopPeriodic()
 
   //            Falcon PID configs              //
 
-  flyWheelL.Set(ControlMode::Velocity, flyWheelV);
+
+  //flyWheelL.Set(ControlMode::Velocity, flyWheelV);
+
+  //three speed shooter control
+  if (rightTrigger0) {
+    flyWheelL.Set(ControlMode::Velocity, launcher());
+  }
+
+  if (leftTrigger1) {
+    intakeMotor.Set(.75);
+    vMotor1.Set(0.7);
+    vMotor2.Set(0.9);
+  } else if (leftBumper1) {
+    intakeMotor.Set(0);
+    vMotor1.Set(0.7);
+    vMotor2.Set(0.9);
+  } else {
+    intakeMotor.Set(0);
+    vMotor1.Set(0);
+    vMotor2.Set(0);
+  }
+
+  if (rightBumper1) {
+    climbL.Set(0.8);
+    climbR.Set(0.8);
+  } else if (rightTrigger1) {
+    climbL.Set(-0.6);
+    climbR.Set(-0.6);
+  } else {
+    climbL.Set(0);
+    climbR.Set(0);
+  }
 
   ArcadeDrive.ArcadeDrive(-1 * straightMath(0.15, 1, leftAxisY0), turnMath(0.4, 0.5, rightAxisX0));
 

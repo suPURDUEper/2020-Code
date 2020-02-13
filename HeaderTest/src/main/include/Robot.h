@@ -5,14 +5,11 @@
 #include <frc2/command/Command.h>
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
-#include "RobotContainer.h"
 
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
   void RobotPeriodic() override;
-  void DisabledInit() override;
-  void DisabledPeriodic() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;
   void TeleopInit() override;
@@ -28,7 +25,6 @@ class Robot : public frc::TimedRobot {
   frc2::Command* m_autonomousCommand = nullptr;
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
-  RobotContainer m_container;
   std::string m_autoSelected;
 
   bool m_LimelightHasTarget;

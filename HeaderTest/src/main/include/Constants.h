@@ -1,7 +1,8 @@
 #ifndef SRC_CONSTANTS_H_
 #define SRC_CONSTANTS_H_
 
-enum Constants {
+enum Constants 
+{
     /**
      * Which PID slot to pull gains from. Starting 2018, you can choose
      * from 0,1,2, or 3. Only the first two (0,1) are visible in web-based configuration.
@@ -29,11 +30,4 @@ enum Constants {
  * command-specific namespaces within this header, which can then be used where
  * they are needed.
  */
-
-enum Constants {
-    kSlotIdx = 0,
-    kPIDLoopIdx  = 0,
-    kTimeoutMs = 30
-};
-
 #endif
