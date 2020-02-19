@@ -53,12 +53,7 @@ extern bool btnStart1;
 extern bool leftJoystickClick1;
 extern bool rightJoystickClick1;
 
-//      Break Beam Defines       //
-extern bool breakBeamBottom;
-extern bool breakBeamTop;
-
 //      Misc. Defines       //
-extern int ballCount;
 extern bool firstBottom;
 extern bool firstTop;
 extern int timer;

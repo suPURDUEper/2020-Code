@@ -2,28 +2,23 @@
 #define LAUNCHER_H_
 #include "commonVariables.h"
 
-double launcher()
+double launcher(double trenchSpeed, double initSpeed, double wallSpeed)
 {
-    
     double flyWheelDesiredSpeed;
     if (btnY1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.9 && flyWheelR.GetSelectedSensorVelocity() < 0.9 || flyWheelL.GetSelectedSensorVelocity() > 0.9 && flyWheelR.GetSelectedSensorVelocity() > 0.9*/)
     { //temporarily got rid of if !btnX0 for scrimmage
-        cout << ".9 power" << endl;
-        flyWheelDesiredSpeed = 0.9;
-        conveyorMotor.Set(1);
+        flyWheelDesiredSpeed = trenchSpeed;
     }
     else if (btnX1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.7 && flyWheelR.GetSelectedSensorVelocity() < 0.7 || flyWheelL.GetSelectedSensorVelocity() > 0.7 && flyWheelR.GetSelectedSensorVelocity() > 0.7*/)
     {
-        cout << ".7 power" << endl;
-        flyWheelDesiredSpeed = 0.7;
-        conveyorMotor.Set(1);
+        
+        flyWheelDesiredSpeed = initSpeed;
     }
     else if (btnA1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.5 && flyWheelR.GetSelectedSensorVelocity() < 0.5 || flyWheelL.GetSelectedSensorVelocity() > 0.5 && flyWheelR.GetSelectedSensorVelocity() > 0.5*/)
     {
-        cout << ".5 power" << endl;
-        flyWheelDesiredSpeed = 0.5;
-        conveyorMotor.Set(0.5);
+        flyWheelDesiredSpeed = wallSpeed;
     }
+
     return flyWheelDesiredSpeed;
 }
 

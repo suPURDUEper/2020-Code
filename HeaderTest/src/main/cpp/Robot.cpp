@@ -4,7 +4,7 @@
 #include <frc2/command/CommandScheduler.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <networktables/NetworkTable.h>
-#include <cameraserver/CameraServer.h>
+//#include <cameraserver/CameraServer.h>
 #include <frc/DoubleSolenoid.h>
 #include <frc/DigitalOutput.h>
 #include <frc/DigitalInput.h>
@@ -37,32 +37,31 @@ double clamp(double in, double minval, double maxval)
   return in;
 }
 
-DigitalInput breakBeamTopIn(0);
-DigitalOutput breakBeamTopOut(1);
-DigitalInput breakBeamBottomIn(2);
-DigitalOutput breakBeamBottomOut(3);
+DigitalInput breakBeamFull(3);
+DigitalInput breakBeamNewBall(2);
+DigitalInput breakBeamFourthBall(1);
+DigitalInput breakBeamFifthBall(0);
 
 Joystick driveController{0};
 Joystick operatorController{1};
 
 //      Motors      //
 
-WPI_TalonSRX intakeMotor{0};
-WPI_TalonFX flyWheelL{5};
-WPI_TalonFX flyWheelR{6};
-CANSparkMax Neo1{7, CANSparkMax::MotorType::kBrushless};
-CANSparkMax Neo2{8, CANSparkMax::MotorType::kBrushless};
-WPI_TalonSRX conveyorMotor{10};
-WPI_VictorSPX vMotor1{11};
-WPI_VictorSPX vMotor2{12};
-CANSparkMax indexMotor{13, CANSparkMax::MotorType::kBrushed};
-WPI_TalonFX climbL{14};
-WPI_TalonFX climbR{15};
+WPI_TalonFX flyWheelL{0};
+WPI_TalonFX flyWheelR{1};
+WPI_TalonFX climbL{2};
+WPI_TalonFX climbR{3};
+WPI_TalonSRX intakeMotor{5};
+WPI_TalonSRX conveyorMotor{4};
+WPI_VictorSPX vMotor1{0};
+WPI_VictorSPX vMotor2{1};
+WPI_VictorSPX intakeFollower{2};
+CANSparkMax indexMotor{5, CANSparkMax::MotorType::kBrushless};
 
 //      Solenoids     //
-Solenoid brakeLift{0};
-DoubleSolenoid intakeSolenoid{1, 2};
-DoubleSolenoid hoodSolenoid{3, 4};
+Solenoid brakeLift{4};
+DoubleSolenoid intakeSolenoid{2, 3};
+DoubleSolenoid hoodSolenoid{0, 1};
 
 // default PID coefficients
 double kP = 5e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
@@ -82,22 +81,22 @@ double rightAxisX0{driveController.GetRawAxis(2)};
 double rightAxisY0{driveController.GetRawAxis(3)}; //took out * -1
 
 //      XABY Button Defines Driver     //
-bool btnX0{driveController.GetRawButton(0)};
-bool btnA0{driveController.GetRawButton(1)};
-bool btnB0{driveController.GetRawButton(2)};
-bool btnY0{driveController.GetRawButton(3)};
+bool btnX0{driveController.GetRawButton(1)};
+bool btnA0{driveController.GetRawButton(2)};
+bool btnB0{driveController.GetRawButton(3)};
+bool btnY0{driveController.GetRawButton(4)};
 
 //      Bumper and Trigger Defines Driver        //
-bool leftBumper0{driveController.GetRawButton(4)};
-bool rightBumper0{driveController.GetRawButton(5)};
-bool leftTrigger0{driveController.GetRawButton(6)};
-bool rightTrigger0{driveController.GetRawButton(7)};
+bool leftBumper0{driveController.GetRawButton(5)};
+bool rightBumper0{driveController.GetRawButton(6)};
+bool leftTrigger0{driveController.GetRawButton(7)};
+bool rightTrigger0{driveController.GetRawButton(8)};
 
 //      Misc. Button Defines Driver      //
-bool btnBack0{driveController.GetRawButton(8)};
-bool btnStart0{driveController.GetRawButton(9)};
-bool leftJoystickClick0{driveController.GetRawButton(10)};
-bool rightJoystickClick0{driveController.GetRawButton(11)};
+bool btnBack0{driveController.GetRawButton(9)};
+bool btnStart0{driveController.GetRawButton(10)};
+bool leftJoystickClick0{driveController.GetRawButton(11)};
+bool rightJoystickClick0{driveController.GetRawButton(12)};
 
 //      XY Operator Axes Defines      //
 double leftAxisX1{operatorController.GetRawAxis(0)};
@@ -106,33 +105,31 @@ double rightAxisX1{operatorController.GetRawAxis(2)};
 double rightAxisY1{operatorController.GetRawAxis(3)}; //too out * -1
 
 //      XABY Operator Button Defines     //
-bool btnX1{operatorController.GetRawButton(0)};
-bool btnA1{operatorController.GetRawButton(1)};
-bool btnB1{operatorController.GetRawButton(2)};
-bool btnY1{operatorController.GetRawButton(3)};
+bool btnX1{operatorController.GetRawButton(1)};
+bool btnA1{operatorController.GetRawButton(2)};
+bool btnB1{operatorController.GetRawButton(3)};
+bool btnY1{operatorController.GetRawButton(4)};
 
 //      Operator Bumper and Trigger Defines        //
-bool leftBumper1{operatorController.GetRawButton(4)};
-bool rightBumper1{operatorController.GetRawButton(5)};
-bool leftTrigger1{operatorController.GetRawButton(6)};
-bool rightTrigger1{operatorController.GetRawButton(7)};
+bool leftBumper1{operatorController.GetRawButton(5)};
+bool rightBumper1{operatorController.GetRawButton(6)};
+bool leftTrigger1{operatorController.GetRawButton(7)};
+bool rightTrigger1{operatorController.GetRawButton(8)};
 
 //     Operator Misc. Button Defines      //
-bool btnBack1{operatorController.GetRawButton(8)};
-bool btnStart1{operatorController.GetRawButton(9)};
-bool leftJoystickClick1{operatorController.GetRawButton(10)};
-bool rightJoystickClick1{operatorController.GetRawButton(11)};
-
-//      Break Beam Variables      //
-bool breakBeamBottom{breakBeamBottomIn.Get()};
-bool breakBeamTop{breakBeamTopIn.Get()};
+bool btnBack1{operatorController.GetRawButton(9)};
+bool btnStart1{operatorController.GetRawButton(10)};
+bool leftJoystickClick1{operatorController.GetRawButton(11)};
+bool rightJoystickClick1{operatorController.GetRawButton(12)};
 
 //      Misc. Defines       //
-int ballCount;
+
 bool firstTop{true};
 bool firstBottom{true};
 int timer;
 int clicks = 21;
+bool intaketoggled = false;
+bool lastRightJoyClick = false;
 
 //      Drive Variables     //
 bool nitros{false};
@@ -145,34 +142,55 @@ int _loops = 0;
 
 void Robot::RobotInit()
 {
-  brakeLift.Set(false);
+  intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
+  intakeMotor.ConfigContinuousCurrentLimit(5, 0);
+  flyWheelL.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
+  flyWheelR.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
+  conveyorMotor.ConfigContinuousCurrentLimit(5, 0);
+  indexMotor.SetSmartCurrentLimit(5);
+  climbL.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
+  climbR.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
+  conveyorMotor.SetInverted(true);
+  conveyorMotor.SetNeutralMode(Brake);
+  indexMotor.SetInverted(true);
+  intakeFollower.Follow(intakeMotor);
+
+  brakeLift.Set(true);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   SmartDashboard::PutData("Auto Modes", &m_chooser);
-  CameraServer::GetInstance()->StartAutomaticCapture(0);
+  //CameraServer::GetInstance()->StartAutomaticCapture(0);
 
   flyWheelL.ConfigFactoryDefault();
   /* first choose the sensor */
-
+  /*
   flyWheelL.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
   flyWheelL.SetSensorPhase(true);
-
+*/
   /* set the peak and nominal outputs */
+  /*
   flyWheelL.ConfigNominalOutputForward(0, kTimeoutMs);
   flyWheelL.ConfigNominalOutputReverse(0, kTimeoutMs);
   flyWheelL.ConfigPeakOutputForward(1, kTimeoutMs);
   flyWheelL.ConfigPeakOutputReverse(-1, kTimeoutMs);
+  */
+  flyWheelL.SetInverted(true);
   // set motor follow //
   flyWheelR.Follow(flyWheelL);
-  flyWheelR.SetInverted(true);
-
+  flyWheelR.SetInverted(false);
+  /*
   flyWheelL.Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
   flyWheelL.Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
   flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
   flyWheelL.Config_kD(kPIDLoopIdx, 0, kTimeoutMs);
-
+*/
   flyWheelL.SetNeutralMode(Coast);
   flyWheelR.SetNeutralMode(Coast);
+
+  double trenchSpeed = SmartDashboard::PutNumber("Trench Speed", 1);
+  double initSpeed = SmartDashboard::PutNumber("Init Line Speed", .85);
+  double wallSpeed = SmartDashboard::PutNumber("Wall Speed", .6);
+
 
   climbR.SetInverted(true);
 
@@ -205,6 +223,7 @@ void Robot::RobotInit()
   RpidController.SetSmartMotionMaxAccel(kMaxAcc);
   RpidController.SetSmartMotionAllowedClosedLoopError(kAllErr);
 
+
   // display PID coefficients on SmartDashboard
   SmartDashboard::PutNumber("P Gain", kP);
   SmartDashboard::PutNumber("I Gain", kI);
@@ -214,17 +233,18 @@ void Robot::RobotInit()
   SmartDashboard::PutNumber("Max Output", kMaxOutput);
   SmartDashboard::PutNumber("Min Output", kMinOutput);
 
-  // display Smart Motion coefficients
-  SmartDashboard::PutNumber("Max Velocity", kMaxVel);
-  SmartDashboard::PutNumber("Min Velocity", kMinVel);
-  SmartDashboard::PutNumber("Max Acceleration", kMaxAcc);
-  SmartDashboard::PutNumber("Allowed Closed Loop Error", kAllErr);
-  SmartDashboard::PutNumber("Set Position", 0);
-  SmartDashboard::PutNumber("Set Degrees", 0);
-  SmartDashboard::PutNumber("Set Velocity", 0);
+  // display Smart Motion coefficients // Commented out for scrimmage testing
+  //SmartDashboard::PutNumber("Max Velocity", kMaxVel);
+  //SmartDashboard::PutNumber("Min Velocity", kMinVel);
+  //SmartDashboard::PutNumber("Max Acceleration", kMaxAcc);
+  //SmartDashboard::PutNumber("Allowed Closed Loop Error", kAllErr);
+  //SmartDashboard::PutNumber("Set Position", 0);
+  //SmartDashboard::PutNumber("Set Degrees", 0);
+  //SmartDashboard::PutNumber("Set Velocity", 0);
 
   // button to toggle between velocity and smart motion modes
-  SmartDashboard::PutBoolean("Mode", true);
+  //SmartDashboard::PutBoolean("Mode", true);
+  // SmartDashboard::PutNumber("Fly Wheel Velocity", flyWheelL.GetSelectedSensorVelocity());
 }
 
 void Robot::RobotPeriodic()
@@ -267,18 +287,13 @@ void Robot::TeleopInit()
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
+  
   /*
   SmartDashboard::PutNumber("Set FlyWheel Velocity", 0);
   SmartDashboard::PutNumber("SetP", 0);
   SmartDashboard::PutNumber("SetI", 0);
   SmartDashboard::PutNumber("SetD", 0);
   SmartDashboard::PutNumber("SetF", 0); */
-}
-
-void ball() // This will increment the number of balls
-{
-  ballCount++;
-  cout << "ball " << ballCount << endl;
 }
 
 void Robot::TeleopPeriodic()
@@ -377,67 +392,140 @@ void Robot::TeleopPeriodic()
     allE = kAllErr;
   }
 
-  btnX0 = driveController.GetRawButton(0);
+  /* --------------- Update Controller Values ----------------*/
 
-  double flyWheelP = SmartDashboard::GetNumber("SetP", 0.1097);
-  double flyWheelI = SmartDashboard::GetNumber("SetI", 0.22);
-  double flyWheelD = SmartDashboard::GetNumber("SetD", 0);
-  double flyWheelV = SmartDashboard::GetNumber("Set FlyWheel Velocity", 0);
+  leftBumper1 = operatorController.GetRawButton(5);
+  rightBumper1 = operatorController.GetRawButton(6);
+  leftTrigger1 = operatorController.GetRawButton(7);
+  rightTrigger1 = operatorController.GetRawButton(8);
 
-  SmartDashboard::PutBoolean("Beam", breakBeamBottomIn.Get());
-  SmartDashboard::PutNumber("Balls", ballCount);
-  SmartDashboard::PutNumber("FlyWheel Velocity", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx));
+  leftBumper0 = driveController.GetRawButton(5);
+  leftTrigger0 = driveController.GetRawButton(7);
+  rightTrigger0 = driveController.GetRawButton(8);
+
+  btnX1 = operatorController.GetRawButton(1);
+  btnA1 = operatorController.GetRawButton(2);
+  btnB1 = operatorController.GetRawButton(3);
+  btnY1 = operatorController.GetRawButton(4);
+
+  leftAxisY0 = driveController.GetRawAxis(1);
+  rightAxisX0 = driveController.GetRawAxis(2);
+
+  btnBack1 = operatorController.GetRawButton(9);
+  btnStart1 = operatorController.GetRawButton(10);
+  leftJoystickClick1 = operatorController.GetRawButton(11);
+  rightJoystickClick1 = operatorController.GetRawButton(12);
+
+  //--------------------------------------------------------------------------------------------------//
+
+  //    Commenting out For Scrimmage Testing
+  //double flyWheelP = SmartDashboard::GetNumber("SetP", 0.1097);
+  //double flyWheelI = SmartDashboard::GetNumber("SetI", 0.22);
+  //double flyWheelD = SmartDashboard::GetNumber("SetD", 0);
+
+  //SmartDashboard::PutNumber("FlyWheel Velocity", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx));
 
   //            Falcon PID configs              //
 
-  //flyWheelL.Set(ControlMode::Velocity, flyWheelV);
-  conveyorMotor.Set(conveyor());
-  //three speed shooter control
+  double trenchSpeed = SmartDashboard::GetNumber("Trench Speed", 1);
+  double initSpeed = SmartDashboard::GetNumber("Init Line Speed", .85);
+  double wallSpeed = SmartDashboard::GetNumber("Wall Speed", .6);
+
+  // Three Speed Shooter Control
+  flyWheelL.Set(launcher(trenchSpeed, initSpeed, wallSpeed));
+
   if (rightTrigger0)
   {
-    flyWheelL.Set(launcher());
-  } 
-  else
-  {
-    flyWheelL.Set(0);
+    conveyorMotor.Set(.9);
+    indexMotor.Set(.9);
   }
-
-
-
-  if (leftTrigger1)
+  else if (leftTrigger0)
   {
-    intakeMotor.Set(.75);
+    intakeMotor.Set(.6);
     vMotor1.Set(0.7);
     vMotor2.Set(0.9);
+
+    if (!breakBeamFull.Get() && !breakBeamNewBall.Get() && !breakBeamFourthBall.Get() && !breakBeamFifthBall.Get())
+      indexMotor.Set(0);
+    else
+      indexMotor.Set(0.25);
+
+    if (!breakBeamFull.Get())
+      conveyorMotor.Set(0);
+    else if (!breakBeamNewBall.Get())
+      conveyorMotor.Set(0.3);
+    else
+      conveyorMotor.Set(0);
   }
-  else if (leftBumper1)
+  else if (leftBumper0)
   {
     intakeMotor.Set(0);
     vMotor1.Set(0.7);
     vMotor2.Set(0.9);
+    indexMotor.Set(0.5);
+
+    if (!breakBeamFull.Get() && !breakBeamNewBall.Get() && !breakBeamFourthBall.Get() && !breakBeamFifthBall.Get())
+      indexMotor.Set(0);
+    else
+      indexMotor.Set(0.25);
+
+    if (!breakBeamFull.Get())
+      conveyorMotor.Set(0);
+    else if (!breakBeamNewBall.Get())
+      conveyorMotor.Set(0.3);
+    else
+      conveyorMotor.Set(0);
   }
   else
   {
     intakeMotor.Set(0);
     vMotor1.Set(0);
     vMotor2.Set(0);
+    indexMotor.Set(0);
+    conveyorMotor.Set(0);
   }
 
+  // Making Climb Move
   if (rightBumper1)
   {
-    climbL.Set(0.8);
-    climbR.Set(0.8);
+    climbL.Set(0.5);
+    climbR.Set(0.5);
   }
   else if (rightTrigger1)
   {
-    climbL.Set(-0.6);
-    climbR.Set(-0.6);
+    climbL.Set(-0.8);
+    climbR.Set(-0.8);
   }
   else
   {
     climbL.Set(0);
     climbR.Set(0);
   }
+
+  if (leftJoystickClick1)
+    brakeLift.Set(false);
+  else
+    brakeLift.Set(true);
+
+  if (btnBack1)
+    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
+  else if (btnStart1)
+    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
+
+  if (rightJoystickClick1 && !lastRightJoyClick)
+  {
+    if (intaketoggled)
+    {
+      intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
+      intaketoggled = false;
+    }
+    else if (!intaketoggled)
+    {
+      intakeSolenoid.Set(DoubleSolenoid::Value::kReverse);
+      intaketoggled = true;
+    }
+  }
+  lastRightJoyClick = rightJoystickClick1;
 
   ArcadeDrive.ArcadeDrive(-1 * straightMath(0.15, 1, leftAxisY0), turnMath(0.4, 0.5, rightAxisX0));
 

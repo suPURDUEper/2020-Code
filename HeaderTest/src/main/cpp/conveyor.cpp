@@ -6,14 +6,18 @@
 */
 double conveyor()
 {
-    double ConveyorSpeed;
-    if ((!breakBeamTop || breakBeamBottom) && !rightTrigger0) // if bottom beam is broken and top beam not, then increase ball count by 1
+    double ConveyorSpeed = 0;
+   /* if ((breakBeamBottom || !breakBeamTop) && !rightTrigger0) // if bottom beam is broken and top beam not, then increase ball count by 1
     {
         ConveyorSpeed = 0;
     }
     else if (!breakBeamBottom && breakBeamTop) //took out not triggered b/c robot needs to run coneyor and shoot at the same time
     {
         ConveyorSpeed = 0.5;
+    }*/
+    if (btnB1)
+    {
+        ConveyorSpeed = -0.5;
     }
 
     return ConveyorSpeed;
