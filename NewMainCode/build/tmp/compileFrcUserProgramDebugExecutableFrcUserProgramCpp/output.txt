@@ -1,0 +1,34 @@
+See file:///C:/Users/FRC/Desktop/Programes/NewMainCode/build/tmp/compileFrcUserProgramDebugExecutableFrcUserProgramCpp/output.txt for all output for compileFrcUserProgramDebugExecutableFrcUserProgramCpp.
+compiling Robot.cpp successful.
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::RobotInit()':
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:190:10: warning: unused variable 'trenchSpeed' [-Wunused-variable]
+   double trenchSpeed = SmartDashboard::PutNumber("Trench Speed", 1);
+          ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:191:10: warning: unused variable 'initSpeed' [-Wunused-variable]
+   double initSpeed = SmartDashboard::PutNumber("Init Line Speed", .85);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:192:10: warning: unused variable 'wallSpeed' [-Wunused-variable]
+   double wallSpeed = SmartDashboard::PutNumber("Wall Speed", .6);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopPeriodic()':
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:410:10: warning: unused variable 'flyWheelF' [-Wunused-variable]
+   double flyWheelF = SmartDashboard::GetNumber("SetF", 0.1097);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:411:10: warning: unused variable 'flyWheelP' [-Wunused-variable]
+   double flyWheelP = SmartDashboard::GetNumber("SetP", 0.22);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:412:10: warning: unused variable 'flyWheelI' [-Wunused-variable]
+   double flyWheelI = SmartDashboard::GetNumber("SetI", 0);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:413:10: warning: unused variable 'flyWheelD' [-Wunused-variable]
+   double flyWheelD = SmartDashboard::GetNumber("SetD", 0);
+          ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:523:10: warning: unused variable 'ta' [-Wunused-variable]
+   double ta = table->GetNumber("ta", 0.0);
+          ^~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'void Robot::Update_Limelight_Tracking()':
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:543:10: warning: unused variable 'ty' [-Wunused-variable]
+   double ty = table->GetNumber("ty", 0.0);
+          ^~
+
+Finished compileFrcUserProgramDebugExecutableFrcUserProgramCpp, see full log file:///C:/Users/FRC/Desktop/Programes/NewMainCode/build/tmp/compileFrcUserProgramDebugExecutableFrcUserProgramCpp/output.txt.
