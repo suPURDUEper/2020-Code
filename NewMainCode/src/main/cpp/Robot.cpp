@@ -125,7 +125,7 @@ bool rightJoystickClick1{operatorController.GetRawButton(12)};
 
 bool firstTop{true};
 bool firstBottom{true};
-int timer;
+Timer timer;
 int clicks = 21;
 bool intaketoggled = false;
 bool lastRightJoyClick = false;
@@ -262,9 +262,68 @@ void Robot::AutonomousInit()
   {
     m_autonomousCommand->Schedule();
   }
+  timer.Reset();
+  timer.Start();
+
+  SmartDashboard::PutNumber("SetF", 0.1027);
+  SmartDashboard::PutNumber("SetP", 0.22);
+  SmartDashboard::PutNumber("SetI", 0);
+  SmartDashboard::PutNumber("SetD", 0); 
+
+  double flyWheelF = SmartDashboard::GetNumber("SetF", 0.0453);
+  double flyWheelP = SmartDashboard::GetNumber("SetP", 0.15);
+  double flyWheelI = SmartDashboard::GetNumber("SetI", 0);
+  double flyWheelD = SmartDashboard::GetNumber("SetD", 1.5);
+
+  flyWheelL.Config_kF(kPIDLoopIdx, flyWheelF, kTimeoutMs);
+  flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs);
+  flyWheelL.Config_kI(kPIDLoopIdx, flyWheelI, kTimeoutMs);
+  flyWheelL.Config_kD(kPIDLoopIdx, flyWheelD, kTimeoutMs);
 }
 
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() 
+{
+  float phase1 = 1.500;
+  float phase2 = 2.000 + phase1;
+  float phase3 = 0.500 + phase2;
+  float phase4 = 2.500 + phase3;
+  if (m_autoSelected == kAutoNameCustom)
+  {
+    if (0 < timer.Get() && timer.Get() < phase1)
+    {
+      cout << "phase1 " << timer.Get() << endl;
+      flyWheelL.Set(ControlMode::Velocity, 5000*3.4133);
+      ArcadeDrive.ArcadeDrive(0, 0);
+    }
+    else if (phase1 < timer.Get() && timer.Get() < phase2)
+    {
+      cout << "phase2 " << timer.Get() << endl;
+      conveyorMotor.Set(0.5);
+      indexMotor.Set(0.7);
+      ArcadeDrive.ArcadeDrive(0, 0);
+    }
+    else if (phase2 < timer.Get() && timer.Get() < phase3)
+    {
+      cout << "phase3 " << timer.Get() << endl;
+      flyWheelL.Set(0);
+      conveyorMotor.Set(0);
+      indexMotor.Set(0);
+      ArcadeDrive.ArcadeDrive(0.6, 0);
+    }
+    else if (phase3 < timer.Get() && timer.Get() < phase4)
+    {
+      ArcadeDrive.ArcadeDrive(-0.3, 0);
+    }
+    else
+    {
+      cout << "phase4 " << timer.Get() << endl;
+      ArcadeDrive.ArcadeDrive(0, 0);
+      indexMotor.Set(0);
+      conveyorMotor.Set(0);
+      flyWheelL.Set(0);
+    }
+  }
+}
 
 void Robot::TeleopInit()
 {
@@ -279,10 +338,6 @@ void Robot::TeleopInit()
   }
   
   SmartDashboard::PutNumber("Set FlyWheelV", 0);
-  SmartDashboard::PutNumber("SetF", 0.1027);
-  SmartDashboard::PutNumber("SetP", 0.22);
-  SmartDashboard::PutNumber("SetI", 0);
-  SmartDashboard::PutNumber("SetD", 0); 
 }
 
 void Robot::TeleopPeriodic()
@@ -408,14 +463,18 @@ void Robot::TeleopPeriodic()
 
   //--------------------------------------------------------------------------------------------------//
 
+  SmartDashboard::PutNumber("Current FlyWheelV", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx) / 3.4133);
+
+  //            Falcon PID configs              //
+  SmartDashboard::PutNumber("SetF", 0.1027);
+  SmartDashboard::PutNumber("SetP", 0.22);
+  SmartDashboard::PutNumber("SetI", 0);
+  SmartDashboard::PutNumber("SetD", 0); 
+
   double flyWheelF = SmartDashboard::GetNumber("SetF", 0.0453);
   double flyWheelP = SmartDashboard::GetNumber("SetP", 0.15);
   double flyWheelI = SmartDashboard::GetNumber("SetI", 0);
   double flyWheelD = SmartDashboard::GetNumber("SetD", 1.5);
-
-  SmartDashboard::PutNumber("Current FlyWheelV", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx) / 3.4133);
-
-  //            Falcon PID configs              //
 
   double trenchSpeed = SmartDashboard::GetNumber("Trench Speed", 6000);
   double initSpeed = SmartDashboard::GetNumber("Init Line Speed", 4500);
@@ -437,7 +496,7 @@ void Robot::TeleopPeriodic()
 
   if (rightTrigger0)
   {
-    conveyorMotor.Set(.9);
+    conveyorMotor.Set(.5);
     indexMotor.Set(.9);
   }
   else if (leftTrigger0)
@@ -449,7 +508,7 @@ void Robot::TeleopPeriodic()
     if (!breakBeamFull.Get() && !breakBeamNewBall.Get() && !breakBeamFourthBall.Get() && !breakBeamFifthBall.Get())
       indexMotor.Set(0);
     else
-      indexMotor.Set(0.25);
+      indexMotor.Set(0.5); //changed from .25
 
     if (!breakBeamFull.Get())
       conveyorMotor.Set(0);
@@ -528,6 +587,8 @@ void Robot::TeleopPeriodic()
   }
   lastRightJoyClick = rightJoystickClick1;
 
+cout << "DriveStraight " << straightMath(0.15, 0.5, leftAxisY0) << ", ";
+cout << "Turn " << turnMath(0.18, 0.5, rightAxisX0) << endl;
 
 if (btnStart0)
 {
@@ -555,15 +616,17 @@ void Robot::TestPeriodic() {}
 void Robot::Update_Limelight_Tracking()
 {
   //Proportional Steering Constant
-  const double STEER_K = 0.05;
-
+  const double STEER_K = 0.14;
+  float ki = 0.003;
   //Proportional Drive Constant
   const double DRIVE_K = 0.26;
 
   //Area of tape when robot has reached the goal
   const double DESIRED_TARGET_AREA = 49.0;
   const double MAX_DRIVE = 0.25;
-  const double MAX_STEER = 0.4f;
+  const double MAX_STEER = 0.33f;
+  float min_command = 0.14f;
+  
 
   shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double tx = table->GetNumber("tx", 0.0);
@@ -581,7 +644,27 @@ void Robot::Update_Limelight_Tracking()
   {
     m_LimelightHasTarget = true;
     // Proportional steering
-    m_LimelightTurnCmd = tx * STEER_K;
+    float steering_adjust = 0.0f;
+    if (tx > 2.5 || tx < -2.5)
+      {
+        limelightIntegral = 0;
+      }
+      else
+      {
+        limelightIntegral = limelightIntegral + tx;
+      }
+      
+    if (tx > 0.2)
+    {
+      cout << limelightIntegral << endl;
+      m_LimelightTurnCmd = tx * STEER_K + limelightIntegral * ki - min_command;
+    }
+    else if (tx < 0.2)
+    {
+      cout << limelightIntegral << endl;
+      m_LimelightTurnCmd = tx * STEER_K + limelightIntegral * ki + min_command;
+    }
+  
     m_LimelightTurnCmd = clamp(m_LimelightTurnCmd, -MAX_STEER, MAX_STEER);
     // drive forward until the target area reaches our desired area
     if (ta > 49.0)

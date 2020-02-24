@@ -56,7 +56,6 @@ extern bool rightJoystickClick1;
 //      Misc. Defines       //
 extern bool firstBottom;
 extern bool firstTop;
-extern int timer;
 extern int clicks;
 
 #endif

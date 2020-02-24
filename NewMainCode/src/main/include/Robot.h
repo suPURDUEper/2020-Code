@@ -30,5 +30,6 @@ class Robot : public frc::TimedRobot {
   bool m_LimelightHasTarget;
   double m_LimelightTurnCmd;
   double m_LimelightDriveCmd;
+  float limelightIntegral;
 };
 #endif

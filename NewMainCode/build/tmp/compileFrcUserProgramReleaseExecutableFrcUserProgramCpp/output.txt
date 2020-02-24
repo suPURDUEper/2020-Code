@@ -11,11 +11,14 @@ C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:192:10: warnin
    double wallSpeed = SmartDashboard::PutNumber("Wall Speed", 3000);
           ^~~~~~~~~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopPeriodic()':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:550:10: warning: unused variable 'ta' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:611:10: warning: unused variable 'ta' [-Wunused-variable]
    double ta = table->GetNumber("ta", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'void Robot::Update_Limelight_Tracking()':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:570:10: warning: unused variable 'ty' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:647:11: warning: unused variable 'steering_adjust' [-Wunused-variable]
+     float steering_adjust = 0.0f;
+           ^~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:633:10: warning: unused variable 'ty' [-Wunused-variable]
    double ty = table->GetNumber("ty", 0.0);
           ^~
 

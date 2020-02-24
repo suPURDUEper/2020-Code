@@ -17,7 +17,7 @@ CANEncoder R_encoder = RDriveMotor.GetEncoder();
 
 void forwardFunction(float distance)
 {
-  float desiredDistance{distance * clicks};
+  float desiredDistance{distance * clicks / 10.71};
   while (L_encoder.GetPosition() < desiredDistance && R_encoder.GetPosition() < desiredDistance)
   {
     RpidController.SetP(desiredDistance);
