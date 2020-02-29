@@ -3,6 +3,8 @@
 
 #include "commonVariables.h"
 
+#define pi 3.14
+
 CANSparkMax LDriveMotor{1, CANSparkMax::MotorType::kBrushless};
 CANSparkMax LDriveMotor2{2, CANSparkMax::MotorType::kBrushless};
 CANSparkMax RDriveMotor{3, CANSparkMax::MotorType::kBrushless};
@@ -13,28 +15,27 @@ CANEncoder L_encoder = LDriveMotor.GetEncoder();
 CANPIDController RpidController = RDriveMotor.GetPIDController();
 CANEncoder R_encoder = RDriveMotor.GetEncoder();
 
+double leftDriveGoal = L_encoder.GetPosition();
+double rightDriveGoal = R_encoder.GetPosition();
 
-
-void forwardFunction(float distance)
+double driveStraight(float distance)
 {
-  float desiredDistance{distance * clicks};
-  while (L_encoder.GetPosition() < desiredDistance && R_encoder.GetPosition() < desiredDistance)
-  {
-    RpidController.SetP(desiredDistance);
-    LpidController.SetP(desiredDistance);
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-  }
+  LpidController.SetSmartMotionMaxVelocity(1200);
+  RpidController.SetSmartMotionMaxVelocity(1200);
+  float desiredDistance = distance * .57;
+  leftDriveGoal = leftDriveGoal + desiredDistance;
+  rightDriveGoal = rightDriveGoal - desiredDistance;
+  return desiredDistance;
 }
 
-void turnFunction(float distance)
+double turn(float degrees)
 {
-  float desiredDistance{distance / 2};
-  while (R_encoder.GetPosition() != desiredDistance && L_encoder.GetPosition() != desiredDistance)
-  {
-    LpidController.SetReference(desiredDistance, ControlType::kSmartMotion);
-    RpidController.SetReference(-desiredDistance, ControlType::kSmartMotion);
-  }
+  LpidController.SetSmartMotionMaxVelocity(800);
+  RpidController.SetSmartMotionMaxVelocity(800);
+  float desiredDegrees = degrees * 0.1205;
+  leftDriveGoal = leftDriveGoal + desiredDegrees;
+  rightDriveGoal = rightDriveGoal + desiredDegrees;
+  return desiredDegrees;
 }
 
 #endif
