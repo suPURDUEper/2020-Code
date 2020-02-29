@@ -2,25 +2,52 @@
 #define LAUNCHER_H_
 #include "commonVariables.h"
 
+bool spunUp;
+
 double launcher(double trenchSpeed, double initSpeed, double wallSpeed)
 {
     double flyWheelDesiredSpeed;
     if (btnY1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.9 && flyWheelR.GetSelectedSensorVelocity() < 0.9 || flyWheelL.GetSelectedSensorVelocity() > 0.9 && flyWheelR.GetSelectedSensorVelocity() > 0.9*/)
     { //temporarily got rid of if !btnX0 for scrimmage
         flyWheelDesiredSpeed = trenchSpeed * 3.4133;
+        if ((flyWheelL.GetSelectedSensorVelocity() / 3.4133) < trenchSpeed + 10 && (flyWheelL.GetSelectedSensorVelocity() / 3.4133) > trenchSpeed - 10) //this is right
+        {
+            spunUp = true;
+        }
+        else
+        {
+            spunUp = false;
+        }
     }
     else if (btnX1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.7 && flyWheelR.GetSelectedSensorVelocity() < 0.7 || flyWheelL.GetSelectedSensorVelocity() > 0.7 && flyWheelR.GetSelectedSensorVelocity() > 0.7*/)
     {
 
         flyWheelDesiredSpeed = initSpeed * 3.4133;
+        if ((flyWheelL.GetSelectedSensorVelocity() / 3.4133) < initSpeed + 10 && (flyWheelL.GetSelectedSensorVelocity() / 3.4133) > initSpeed - 10)
+        {
+            spunUp = true;
+        }
+        else
+        {
+            spunUp = false;
+        }
     }
     else if (btnA1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.5 && flyWheelR.GetSelectedSensorVelocity() < 0.5 || flyWheelL.GetSelectedSensorVelocity() > 0.5 && flyWheelR.GetSelectedSensorVelocity() > 0.5*/)
     {
         flyWheelDesiredSpeed = wallSpeed * 3.4133;
+        if ((flyWheelL.GetSelectedSensorVelocity() / 3.4133) < wallSpeed + 10 && (flyWheelL.GetSelectedSensorVelocity() / 3.4133) > wallSpeed - 10)
+        {
+            spunUp = true;
+        }
+        else
+        {
+            spunUp = false;
+        }
     }
     else
     {
         flyWheelDesiredSpeed = 0;
+        spunUp = false;
     }
 
     return flyWheelDesiredSpeed;
