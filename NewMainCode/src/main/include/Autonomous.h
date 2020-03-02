@@ -20,8 +20,18 @@ double rightDriveGoal = R_encoder.GetPosition();
 
 double driveStraight(float distance)
 {
-  LpidController.SetSmartMotionMaxVelocity(1200);
-  RpidController.SetSmartMotionMaxVelocity(1200);
+  LpidController.SetSmartMotionMaxVelocity(2600);
+  RpidController.SetSmartMotionMaxVelocity(2600);
+  float desiredDistance = distance * .57;
+  leftDriveGoal = leftDriveGoal + desiredDistance;
+  rightDriveGoal = rightDriveGoal - desiredDistance;
+  return desiredDistance;
+}
+
+double driveStraightFast(float distance)
+{
+  LpidController.SetSmartMotionMaxVelocity(3000);
+  RpidController.SetSmartMotionMaxVelocity(3000);
   float desiredDistance = distance * .57;
   leftDriveGoal = leftDriveGoal + desiredDistance;
   rightDriveGoal = rightDriveGoal - desiredDistance;
@@ -30,11 +40,29 @@ double driveStraight(float distance)
 
 double turn(float degrees)
 {
-  LpidController.SetSmartMotionMaxVelocity(800);
-  RpidController.SetSmartMotionMaxVelocity(800);
+  LpidController.SetSmartMotionMaxVelocity(2600);
+  RpidController.SetSmartMotionMaxVelocity(2600);
   float desiredDegrees = degrees * 0.1205;
   leftDriveGoal = leftDriveGoal + desiredDegrees;
   rightDriveGoal = rightDriveGoal + desiredDegrees;
+  return desiredDegrees;
+}
+
+double leftSweep(float degrees)
+{
+  LpidController.SetSmartMotionMaxVelocity(2800);
+  RpidController.SetSmartMotionMaxVelocity(2800);
+  float desiredDegrees = degrees * 0.1205;
+  rightDriveGoal = rightDriveGoal + desiredDegrees * 2;
+  return desiredDegrees;
+}
+
+double rightSweep(float degrees)
+{
+  LpidController.SetSmartMotionMaxVelocity(2800);
+  RpidController.SetSmartMotionMaxVelocity(2800);
+  float desiredDegrees = degrees * 0.1205;
+  leftDriveGoal = leftDriveGoal + desiredDegrees * 2;
   return desiredDegrees;
 }
 

@@ -66,7 +66,7 @@ DoubleSolenoid hoodSolenoid{0, 1};
 double kP = 5e-5, kI = 1e-6, kD = 0, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
 
 // default smart motion coefficients
-double kMaxVel = 2000, kMinVel = 0, kMaxAcc = 1500, kAllErr = 0;
+double kMaxVel = 1800, kMinVel = 0, kMaxAcc = 2000, kAllErr = 0;
 
 // motor max RPM
 const double MaxRPM = 5700;
@@ -122,7 +122,6 @@ bool leftJoystickClick1{operatorController.GetRawButton(11)};
 bool rightJoystickClick1{operatorController.GetRawButton(12)};
 
 //      Misc. Defines       //
-
 bool firstTop{true};
 bool firstBottom{true};
 Timer timer;
@@ -138,9 +137,13 @@ DifferentialDrive ArcadeDrive(LDriveMotor, RDriveMotor);
 
 string _sb;
 int _loops = 0;
+int ledMode;
 
 void Robot::RobotInit()
 {
+  ledMode = 1;
+  Update_Limelight_Tracking(ledMode);
+
   intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
   intakeMotor.ConfigContinuousCurrentLimit(5, 0);
   flyWheelL.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
@@ -149,7 +152,8 @@ void Robot::RobotInit()
   indexMotor.SetSmartCurrentLimit(5);
   climbL.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
   climbR.ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration(true, 40, 40, 0), 0);
-  conveyorMotor.SetInverted(true);
+
+  conveyorMotor.SetInverted(false); //was true, then motor got flipped physically
   conveyorMotor.SetNeutralMode(Brake);
   indexMotor.SetInverted(true);
   intakeFollower.Follow(intakeMotor);
@@ -189,7 +193,11 @@ void Robot::RobotInit()
 
   double trenchSpeed = SmartDashboard::PutNumber("Trench Speed", 6000);
   double initSpeed = SmartDashboard::PutNumber("Init Line Speed", 4500);
-  double wallSpeed = SmartDashboard::PutNumber("Wall Speed", 3000);
+  double wallSpeed = SmartDashboard::PutNumber("Wall Speed", 2700);
+
+  double fastConveyor = 1.0;
+  double medConveyor = 0.7;
+  double slowConveyor = 0.5;
 
   climbR.SetInverted(true);
 
@@ -240,13 +248,284 @@ void Robot::RobotPeriodic()
   frc2::CommandScheduler::GetInstance().Run();
 }
 
+int phase;
+
+void auton1()
+{
+  float phase1 = 1.000;
+  float phase2 = 1.000 + phase1;
+  float phase3 = 0.500 + phase2;
+  float phase4 = 2.500 + phase3;
+  if (0 < timer.Get() && timer.Get() < phase1)
+  {
+    //      set flywheel velocity     //
+    cout << "phase1 " << timer.Get() << endl;
+    flyWheelL.Set(ControlMode::Velocity, 5000 * 3.4133);
+    //ArcadeDrive.ArcadeDrive(0, 0);
+  }
+  else if (phase1 < timer.Get() && timer.Get() < phase2)
+  {
+    //      turn on conveyor belt and index motor     //
+    cout << "phase2 " << timer.Get() << endl;
+    conveyorMotor.Set(0.5);
+    indexMotor.Set(0.7);
+    //ArcadeDrive.ArcadeDrive(0, 0);
+  }
+  else if (phase2 < timer.Get() && timer.Get() < phase3)
+  {
+    //      turn off flywheel, indexer, and conveyor      //
+    cout << "phase3 " << timer.Get() << endl;
+    flyWheelL.Set(0);
+    conveyorMotor.Set(0);
+    indexMotor.Set(0);
+    //ArcadeDrive.ArcadeDrive(0.6, 0);
+  }
+  else if (phase3 < timer.Get() && timer.Get() < phase4)
+  {
+    //ArcadeDrive.ArcadeDrive(-0.3, 0);
+  }
+  else
+  {
+    cout << "phase4 " << timer.Get() << endl;
+    //ArcadeDrive.ArcadeDrive(0, 0);
+    indexMotor.Set(0);
+    conveyorMotor.Set(0);
+    flyWheelL.Set(0);
+  }
+}
+
+void auton2(float m_LimelightTurnCmd)
+{
+  float phase1 = 0.25; //spin up
+  float phase2 = 0.500 + phase1; //unload
+  float phase3 = 0.025 + phase2; //turn off shooter
+  float phase4 = 0.025 + phase3; //back up // eliminated for now
+  float phase5 = 1.0 + phase4; //turn
+  float phase6 = 2.5 + phase5; //back up to line up with trench balls
+  float phase7 = 2.0 + phase6; //turn to face trench balls
+  float phase8 = 0.025 + phase7; //lower intake (already done in last phase)
+  float phase9 = 3 + phase8; // drive forward to intake balls
+  float phase10 = 0.5 + phase9;//short turn before backing up
+  float phase11 = 2 + phase10;//backing up
+  float phase12 = 1.5 + phase11;//turning to face goal
+  float phase13 = 1.0 + phase12;//limelight time
+  float phase14 = 1 + phase13;//shooting
+  ArcadeDrive.FeedWatchdog();
+
+  shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  double tx = table->GetNumber("tx", 0.0);
+
+  LpidController.SetReference(leftDriveGoal, ControlType::kSmartMotion);
+  RpidController.SetReference(rightDriveGoal, ControlType::kSmartMotion);
+
+  //Turn on Flywheel and let it get up to speed
+  if (0 < timer.Get() && timer.Get() < phase1)
+  {
+    if (phase == 0)
+    {
+
+      phase = 1;
+    }
+    flyWheelL.Set(ControlMode::Velocity, 6000 * 3.4133); //change in auton1 if this works
+    cout << "phase1 " << timer.Get() << endl;
+  }
+  // Launch 3 preload balls
+  else if (phase1 < timer.Get() && timer.Get() < phase2)
+  {
+    if (phase == 1)
+    {
+
+      phase = 2;
+    }
+    conveyorMotor.Set(1);
+    indexMotor.Set(0.7);
+    cout << "phase2 " << timer.Get() << endl;
+  }
+  //Turn off motors from launching preloads
+  else if (phase2 < timer.Get() && timer.Get() < phase3)
+  {
+    if (phase == 2)
+    {
+
+      phase = 3;
+    }
+    flyWheelL.Set(0);
+    conveyorMotor.Set(0);
+    indexMotor.Set(0);
+    cout << "phase3 " << timer.Get() << endl;
+  }
+  //Backup from initiation line
+  else if (phase3 < timer.Get() && timer.Get() < phase4)
+  {
+    if (phase == 3)
+    {
+      phase = 4;
+    }
+    cout << "phase4 " << timer.Get() << endl;
+  }
+  //First 90 degree backing up turn
+  else if (phase4 < timer.Get() && timer.Get() < phase5)
+  {
+    if (phase == 4)
+    {
+      rightSweep(-45);
+      phase = 5;
+    }
+    cout << "phase5 " << timer.Get() << endl;
+  }
+  //Backup to trench
+  else if (phase5 < timer.Get() && timer.Get() < phase6)
+  {
+    if (phase == 5)
+    {
+      driveStraight(-80);
+      phase = 6;
+    }
+    cout << "phase6 " << timer.Get() << endl;
+  }
+  //2nd 90 degree backing up turn
+  else if (phase6 < timer.Get() && timer.Get() < phase7)
+  {
+    if (phase == 6)
+    {
+      turn(-135);
+      phase = 7;
+    }
+    cout << "phase7 " << timer.Get() << endl;
+  }
+  //Lower intake to prepare to take in 3 trench balls
+  else if (phase7 < timer.Get() && timer.Get() < phase8)
+  {
+    if (phase == 7)
+    {
+
+      driveStraight(0);
+      phase = 8;
+    }
+
+    intakeSolenoid.Set(DoubleSolenoid::Value::kReverse);
+
+    cout << "phase8 " << timer.Get() << endl;
+  }
+  //Drive forward to get trench balls... should be 90? (testing at less)
+  else if (phase8 < timer.Get() && timer.Get() < phase9)
+  {
+    if (phase == 8)
+    {
+      driveStraight(60);
+      phase = 9;
+    }
+    cout << "phase9 " << timer.Get() << endl;
+  }
+  //Turning before leaving trench
+  else if (phase9 < timer.Get() && timer.Get() < phase10)
+  {
+    if (phase == 9)
+    {
+      turn(-20);
+      phase = 10;
+    }
+    cout << "phase10 " << timer.Get() << endl;
+  }
+  //Backing up out of trench... should be 90?
+  else if (phase10 < timer.Get() && timer.Get() < phase11)
+  {
+    if (phase == 10)
+    {
+
+      driveStraightFast(-60);
+      phase = 11;
+    }
+    indexMotor.Set(0);
+    cout << "phase11 " << timer.Get() << endl;
+  }
+  //Turn around to face goal
+  else if (phase11 < timer.Get() && timer.Get() < phase12)
+  {
+    if (phase == 11)
+    {
+      turn(-160);
+      phase = 12;
+    }
+    cout << "phase12 " << timer.Get() << endl;
+  }
+  //Limelight aim at goal
+  else if (phase12 < timer.Get() && timer.Get() < phase13)
+  {
+    if (phase == 12)
+    {
+
+      phase = 13;
+    }
+    ledMode = 3;
+    ArcadeDrive.ArcadeDrive(0, m_LimelightTurnCmd);
+    flyWheelL.Set(ControlMode::Velocity, 6000 * 3.4133);
+    cout << "phase13 " << timer.Get() << endl;
+  }
+  //Fire 3 trench balls
+  else if (phase13 < timer.Get() && timer.Get() < phase14)
+  {
+    if (phase == 13)
+    {
+
+      phase = 14;
+    }
+
+    ArcadeDrive.ArcadeDrive(0, m_LimelightTurnCmd);
+    conveyorMotor.Set(1);
+    indexMotor.Set(0.7);
+    cout << "phase13 " << timer.Get() << endl;
+  }
+  //Turn off motors at end.
+  else
+  {
+    // ArcadeDrive.ArcadeDrive(0, 0);
+    indexMotor.Set(0);
+    conveyorMotor.Set(0);
+    flyWheelL.Set(0);
+
+  }
+  //Breakbeam logic during these intaking phases
+  if (phase == 8 || phase == 9)
+  {
+    intakeMotor.Set(.8);
+    vMotor1.Set(0.7);
+    vMotor2.Set(0.9);
+
+    cout << breakBeamNewBall.Get() << endl;
+
+    if (!breakBeamFull.Get() && !breakBeamNewBall.Get() && !breakBeamFourthBall.Get() && !breakBeamFifthBall.Get())
+      indexMotor.Set(0);
+    else
+      indexMotor.Set(0.5); //changed from .25
+
+    if (!breakBeamFull.Get())
+      conveyorMotor.Set(0);
+    else if (!breakBeamNewBall.Get())
+      conveyorMotor.Set(0.3);
+    else
+      conveyorMotor.Set(0);
+  }
+  else if (phase == 10)
+  {
+    conveyorMotor.Set(0);
+    intakeMotor.Set(0);
+    intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
+  }
+}
+
+void auton3()
+{
+
+}
+
 void Robot::AutonomousInit()
 {
   m_autoSelected = m_chooser.GetSelected();
   //m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
   cout << "Auto selected: " << m_autoSelected << endl;
-
+  phase = 0;
   if (m_autoSelected == kAutoNameCustom)
   {
     // Custom Auto goes here
@@ -263,10 +542,10 @@ void Robot::AutonomousInit()
   timer.Reset();
   timer.Start();
 
-  SmartDashboard::PutNumber("SetF", 0.1027);
-  SmartDashboard::PutNumber("SetP", 0.22);
+  SmartDashboard::PutNumber("SetF", 0.0453);
+  SmartDashboard::PutNumber("SetP", 0.15);
   SmartDashboard::PutNumber("SetI", 0);
-  SmartDashboard::PutNumber("SetD", 0);
+  SmartDashboard::PutNumber("SetD", 1.5);
 
   double flyWheelF = SmartDashboard::GetNumber("SetF", 0.0453);
   double flyWheelP = SmartDashboard::GetNumber("SetP", 0.15);
@@ -277,50 +556,19 @@ void Robot::AutonomousInit()
   flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs);
   flyWheelL.Config_kI(kPIDLoopIdx, flyWheelI, kTimeoutMs);
   flyWheelL.Config_kD(kPIDLoopIdx, flyWheelD, kTimeoutMs);
+
+  cout << L_encoder.GetPosition() << endl;
+  cout << R_encoder.GetPosition() << endl;
+  leftDriveGoal = L_encoder.GetPosition();
+  rightDriveGoal = R_encoder.GetPosition();
+
+  intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
 }
 
 void Robot::AutonomousPeriodic()
 {
-  float phase1 = 1.500;
-  float phase2 = 2.000 + phase1;
-  float phase3 = 0.500 + phase2;
-  float phase4 = 2.500 + phase3;
-  if (m_autoSelected == kAutoNameCustom)
-  {
-    if (0 < timer.Get() && timer.Get() < phase1)
-    {
-      cout << "phase1 " << timer.Get() << endl;
-      flyWheelL.Set(ControlMode::Velocity, 5000 * 3.4133);
-      ArcadeDrive.ArcadeDrive(0, 0);
-    }
-    else if (phase1 < timer.Get() && timer.Get() < phase2)
-    {
-      cout << "phase2 " << timer.Get() << endl;
-      conveyorMotor.Set(0.5);
-      indexMotor.Set(0.7);
-      ArcadeDrive.ArcadeDrive(0, 0);
-    }
-    else if (phase2 < timer.Get() && timer.Get() < phase3)
-    {
-      cout << "phase3 " << timer.Get() << endl;
-      flyWheelL.Set(0);
-      conveyorMotor.Set(0);
-      indexMotor.Set(0);
-      ArcadeDrive.ArcadeDrive(0.6, 0);
-    }
-    else if (phase3 < timer.Get() && timer.Get() < phase4)
-    {
-      ArcadeDrive.ArcadeDrive(-0.3, 0);
-    }
-    else
-    {
-      cout << "phase4 " << timer.Get() << endl;
-      ArcadeDrive.ArcadeDrive(0, 0);
-      indexMotor.Set(0);
-      conveyorMotor.Set(0);
-      flyWheelL.Set(0);
-    }
-  }
+  Update_Limelight_Tracking(ledMode);
+  auton2(m_LimelightTurnCmd);
 }
 
 void Robot::TeleopInit()
@@ -334,108 +582,16 @@ void Robot::TeleopInit()
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
-
+  bool firstLoop = true;
   SmartDashboard::PutNumber("Set FlyWheelV", 0);
 }
+
+bool wallShot;
 
 void Robot::TeleopPeriodic()
 {
   btnStart0 = driveController.GetRawButton(10);
-  Update_Limelight_Tracking();
-
-  SmartDashboard::PutBoolean("Lined up?", limelightAligned);
-
-  //--------------- PID for SparkMax ------------------------------------//
-
-  double p = SmartDashboard::GetNumber("P Gain", 0);
-  double i = SmartDashboard::GetNumber("I Gain", 0);
-  double d = SmartDashboard::GetNumber("D Gain", 0);
-  double iz = SmartDashboard::GetNumber("I Zone", 0);
-  double ff = SmartDashboard::GetNumber("Feed Forward", 0);
-  double max = SmartDashboard::GetNumber("Max Output", 0);
-  double min = SmartDashboard::GetNumber("Min Output", 0);
-  double maxV = SmartDashboard::GetNumber("Max Velocity", 0);
-  double minV = SmartDashboard::GetNumber("Min Velocity", 0);
-  double maxA = SmartDashboard::GetNumber("Max Acceleration", 0);
-  double allE = SmartDashboard::GetNumber("Allowed Closed Loop Error", 0);
-
-  //-------------- if PID coefficients on the SmartDashboard have changed, write new values to controller, for SPARKMAX -----------------------------//
-
-  if ((p != kP)) // Reset the Proportional if it has changed
-  {
-    LpidController.SetP(p);
-    kP = p;
-    RpidController.SetP(p);
-    kP = p;
-  }
-
-  if ((i != kI)) // Reset the Integral if it has changed
-  {
-    LpidController.SetI(i);
-    kI = i;
-    RpidController.SetI(i);
-    kI = i;
-  }
-
-  if ((d != kD)) // Reset the Derivative if it has changed
-  {
-    LpidController.SetD(d);
-    kD = d;
-    RpidController.SetD(d);
-    kD = d;
-  }
-
-  if ((iz != kIz)) // Reset the Integral zone if it has changed
-  {
-    LpidController.SetIZone(iz);
-    kIz = iz;
-    RpidController.SetIZone(iz);
-    kIz = iz;
-  }
-
-  if ((ff != kFF)) // Reset the feed-forward if incorrect
-  {
-    LpidController.SetFF(ff);
-    kFF = ff;
-    RpidController.SetFF(ff);
-    kFF = ff;
-  }
-
-  if ((max != kMaxOutput) || (min != kMinOutput)) // If the max output or the min output are wrong, reset the range
-  {
-    LpidController.SetOutputRange(min, max);
-    RpidController.SetOutputRange(min, max);
-    kMinOutput = min;
-    kMaxOutput = max;
-  }
-
-  if ((maxV != kMaxVel)) // Reset the max velocity if it has changed
-  {
-    LpidController.SetSmartMotionMaxVelocity(maxV);
-    RpidController.SetSmartMotionMaxVelocity(maxV);
-    kMaxVel = maxV;
-  }
-
-  if ((minV != kMinVel)) // Reset the min output if it has changed
-  {
-    LpidController.SetSmartMotionMinOutputVelocity(minV);
-    RpidController.SetSmartMotionMinOutputVelocity(minV);
-    kMinVel = minV;
-  }
-
-  if ((maxA != kMaxAcc)) // Reset the max acceleration if it has changed
-  {
-    LpidController.SetSmartMotionMaxAccel(maxA);
-    RpidController.SetSmartMotionMaxAccel(maxA);
-    kMaxAcc = maxA;
-  }
-
-  if ((allE != kAllErr)) // Reset the allowed error if it has changed, SPARKMAX PID
-  {
-    LpidController.SetSmartMotionAllowedClosedLoopError(allE);
-    RpidController.SetSmartMotionAllowedClosedLoopError(allE);
-    allE = kAllErr;
-  }
+  Update_Limelight_Tracking(ledMode);
 
   /* --------------- Update Controller Values ----------------*/
 
@@ -447,6 +603,7 @@ void Robot::TeleopPeriodic()
   leftBumper0 = driveController.GetRawButton(5);
   leftTrigger0 = driveController.GetRawButton(7);
   rightTrigger0 = driveController.GetRawButton(8);
+  rightBumper0 = driveController.GetRawButton(6);
 
   btnX1 = operatorController.GetRawButton(1);
   btnA1 = operatorController.GetRawButton(2);
@@ -460,7 +617,7 @@ void Robot::TeleopPeriodic()
   btnStart1 = operatorController.GetRawButton(10);
   leftJoystickClick1 = operatorController.GetRawButton(11);
   rightJoystickClick1 = operatorController.GetRawButton(12);
-
+  btnA0 = driveController.GetRawButton(2);
   //--------------------------------------------------------------------------------------------------//
 
   SmartDashboard::PutNumber("Current FlyWheelV", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx) / 3.4133);
@@ -478,7 +635,7 @@ void Robot::TeleopPeriodic()
 
   double trenchSpeed = SmartDashboard::GetNumber("Trench Speed", 6000);
   double initSpeed = SmartDashboard::GetNumber("Init Line Speed", 4500);
-  double wallSpeed = SmartDashboard::GetNumber("Wall Speed", 3000);
+  double wallSpeed = SmartDashboard::GetNumber("Wall Speed", 2700);
 
   flyWheelL.Config_kF(kPIDLoopIdx, flyWheelF, kTimeoutMs);
   flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs);
@@ -492,12 +649,33 @@ void Robot::TeleopPeriodic()
     flyWheelL.Set(ControlMode::Velocity, launcher(trenchSpeed, initSpeed, wallSpeed));
 
   SmartDashboard::PutNumber("Returned Value", launcher(trenchSpeed, initSpeed, wallSpeed));
-  SmartDashboard::PutBoolean("Spun Up?", spunUp);
+
+  if (btnBack1)
+  {
+    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
+  }
+  else if (btnStart1)
+  {
+    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
+  }
 
   if (rightTrigger0)
   {
-    conveyorMotor.Set(.5);
-    indexMotor.Set(.9);
+    if (btnY1) // High
+    {
+      conveyorMotor.Set(1);
+      indexMotor.Set(.9);
+    }
+    else if (btnX1) // Medium
+    {
+      conveyorMotor.Set(0.7);
+      indexMotor.Set(.9);
+    }
+    else if (btnA1) // Low
+    {
+      conveyorMotor.Set(0.5);
+      indexMotor.Set(.9);
+    }
   }
   else if (leftTrigger0)
   {
@@ -567,11 +745,6 @@ void Robot::TeleopPeriodic()
   else
     brakeLift.Set(true);
 
-  if (btnBack1)
-    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
-  else if (btnStart1)
-    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
-
   if (rightJoystickClick1 && !lastRightJoyClick)
   {
     if (intaketoggled)
@@ -587,11 +760,12 @@ void Robot::TeleopPeriodic()
   }
   lastRightJoyClick = rightJoystickClick1;
 
-  cout << "DriveStraight " << straightMath(0.15, 0.5, leftAxisY0) << ", ";
-  cout << "Turn " << turnMath(0.18, 0.5, rightAxisX0) << endl;
+  //cout << "DriveStraight " << straightMath(0.15, 0.5, leftAxisY0) << ", ";
+  //cout << "Turn " << turnMath(0.18, 0.5, rightAxisX0) << endl;
 
-  if (btnStart0)
+  if (btnA0)
   {
+    ledMode = 3;
     if (m_LimelightHasTarget)
     {
       ArcadeDrive.ArcadeDrive(-1 * straightMath(0.15, 0.5, leftAxisY0), m_LimelightTurnCmd);
@@ -603,6 +777,7 @@ void Robot::TeleopPeriodic()
   }
   else
   {
+    ledMode = 1;
     ArcadeDrive.ArcadeDrive(-1 * straightMath(0.15, .5, leftAxisY0), turnMath(0.18, 0.5, rightAxisX0));
   }
 
@@ -613,27 +788,28 @@ void Robot::TeleopPeriodic()
 
 void Robot::TestPeriodic() {}
 
-bool limelightAligned = false;
+float txavg = 0;
 
-void Robot::Update_Limelight_Tracking()
+void Robot::Update_Limelight_Tracking(int ledMode)
 {
   //Proportional Steering Constant
-  const double STEER_K = 0.14;
-  float ki = 0.003;
+  const double STEER_K = 0.03;
+  float ki = 0.00125;
   //Proportional Drive Constant
   const double DRIVE_K = 0.26;
 
   //Area of tape when robot has reached the goal
   const double DESIRED_TARGET_AREA = 49.0;
   const double MAX_DRIVE = 0.25;
-  const double MAX_STEER = 0.33f;
-  float min_command = 0.14f;
+  const double MAX_STEER = 0.3f;
+  float min_command = 0.07f;
 
   shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double tx = table->GetNumber("tx", 0.0);
   double ty = table->GetNumber("ty", 0.0);
   double ta = table->GetNumber("ta", 0.0);
   double tv = table->GetNumber("tv", 0.0);
+  ledMode = table->PutNumber("ledMode", ledMode);
 
   if (tv < 1.0)
   {
@@ -644,35 +820,37 @@ void Robot::Update_Limelight_Tracking()
   else
   {
     m_LimelightHasTarget = true;
+
+    //Averaging tx to mitigate glitch
+    txavg = (0.2 * tx) + (0.8 * txavg);
+    cout << "txavg " << txavg << endl;
+    cout << "tx " << tx << endl;
     // Proportional steering
-    float steering_adjust = 0.0f;
-    if (tx > 2.5 || tx < -2.5)
+    float steering_adjust = 0.0;
+    if (txavg > 2.0 || txavg < -2.0) //this is correct !do not touch the numbers!
+    {
+      limelightIntegral = 0;
+    }
+    else if (txavg < 0.3 && txavg > -0.3) // we made this a tenth smaller was 0.25 respectively
     {
       limelightIntegral = 0;
     }
     else
     {
-      limelightIntegral = limelightIntegral + tx;
+      limelightIntegral = limelightIntegral + txavg;
     }
 
-    if (tx > 0.2)
+    if (txavg > .3) //used to be .2
     {
-      cout << limelightIntegral << endl;
-      m_LimelightTurnCmd = tx * STEER_K + limelightIntegral * ki - min_command;
-      limelightAligned = false;
+      m_LimelightTurnCmd = txavg * STEER_K + /*limelightIntegral * ki*/ +min_command;
     }
-    else if (tx < 0.2)
+    else if (txavg < -.3) //we changed the negative here //used to be .2
     {
-      cout << limelightIntegral << endl;
-      m_LimelightTurnCmd = tx * STEER_K + limelightIntegral * ki + min_command;
-      limelightAligned = false;
+      m_LimelightTurnCmd = txavg * STEER_K + /*limelightIntegral * ki*/ -min_command;
     }
-    else
-    {
-      limelightAligned = true;
-    }
-
+    cout << "Limelight CMD" << m_LimelightTurnCmd << endl;
     m_LimelightTurnCmd = clamp(m_LimelightTurnCmd, -MAX_STEER, MAX_STEER);
+    cout << m_LimelightTurnCmd << endl;
     // drive forward until the target area reaches our desired area
     if (ta > 49.0)
     {
