@@ -161,7 +161,7 @@ void Robot::RobotInit()
   brakeLift.Set(true);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
-  SmartDashboard::PutData("Auto Modes", &m_chooser);
+  //SmartDashboard::PutData("Auto Modes", &m_chooser);
   CameraServer::GetInstance()->StartAutomaticCapture(0);
 
   flyWheelL.ConfigFactoryDefault();
@@ -186,9 +186,12 @@ void Robot::RobotInit()
   flyWheelL.SetNeutralMode(Coast);
   flyWheelR.SetNeutralMode(Coast);
 
+  //      Speed Variables      //
+  /*
   double trenchSpeed = SmartDashboard::PutNumber("Trench Speed", 6000);
-  double initSpeed = SmartDashboard::PutNumber("Init Line Speed", 4500);
+  double initSpeed = SmartDashboard::PutNumber("Init Line Speed", 5500);
   double wallSpeed = SmartDashboard::PutNumber("Wall Speed", 2700);
+  */
 
   double fastConveyor = 1.0;
   double medConveyor = 0.7;
@@ -719,7 +722,7 @@ void Robot::AutonomousInit()
   double flyWheelP = SmartDashboard::GetNumber("SetP", 0.15);
   double flyWheelI = SmartDashboard::GetNumber("SetI", 0);
   double flyWheelD = SmartDashboard::GetNumber("SetD", 1.5);
-  double wallP = SmartDashboard::GetNumber("WallP", 0.15);
+  double wallP = SmartDashboard::GetNumber("WallP", 0.125);
 
   flyWheelL.Config_kF(kPIDLoopIdx, flyWheelF, kTimeoutMs);
   flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs);
@@ -754,18 +757,16 @@ void Robot::TeleopInit()
     m_autonomousCommand = nullptr;
   }
   bool firstLoop = true;
-  SmartDashboard::PutNumber("Set FlyWheelV", 0);
-    SmartDashboard::PutNumber("SetF", 0.0453);
-  SmartDashboard::PutNumber("SetP", 0.15);
+  //SmartDashboard::PutNumber("Set FlyWheelV", 0);
+  SmartDashboard::PutNumber("SetF", 0.047);
+  SmartDashboard::PutNumber("SetP", 0.11);
   SmartDashboard::PutNumber("SetI", 0);
-  SmartDashboard::PutNumber("SetD", 1.5);
+  SmartDashboard::PutNumber("SetD", 6.0);
 }
-
-bool wallShot;
 
 void Robot::TeleopPeriodic()
 {
-  btnStart0 = driveController.GetRawButton(10);
+
   Update_Limelight_Tracking(ledMode);
 
   /* --------------- Update Controller Values ----------------*/
@@ -776,9 +777,11 @@ void Robot::TeleopPeriodic()
   rightTrigger1 = operatorController.GetRawButton(8);
 
   leftBumper0 = driveController.GetRawButton(5);
+  rightBumper0 = driveController.GetRawButton(6);
   leftTrigger0 = driveController.GetRawButton(7);
   rightTrigger0 = driveController.GetRawButton(8);
-  rightBumper0 = driveController.GetRawButton(6);
+
+  btnStart0 = driveController.GetRawButton(10);
 
   btnX1 = operatorController.GetRawButton(1);
   btnA1 = operatorController.GetRawButton(2);
@@ -793,32 +796,47 @@ void Robot::TeleopPeriodic()
   leftJoystickClick1 = operatorController.GetRawButton(11);
   rightJoystickClick1 = operatorController.GetRawButton(12);
   btnA0 = driveController.GetRawButton(2);
+
   //--------------------------------------------------------------------------------------------------//
 
   SmartDashboard::PutNumber("Current FlyWheelV", flyWheelL.GetSelectedSensorVelocity(kPIDLoopIdx) / 3.4133);
 
   //            Falcon PID configs              //
 
-  double flyWheelF = SmartDashboard::GetNumber("SetF", 0.047);
-  double flyWheelP = SmartDashboard::GetNumber("SetP", 0.125); // Generally 0.15
+  double flyWheelF = SmartDashboard::GetNumber("SetF", 0.047); // Generally 0.0453 // current test.047
+  double flyWheelP = SmartDashboard::GetNumber("SetP", 0.125); // Generally 0.15 // current test .11
   double flyWheelI = SmartDashboard::GetNumber("SetI", 0);
-  double flyWheelD = SmartDashboard::GetNumber("SetD", 10);
+  double flyWheelD = SmartDashboard::GetNumber("SetD", 10); // Generally 1.5 // current test 6
 
+  //          Modify Shooter Speed              //
+  /*
   double trenchSpeed = SmartDashboard::GetNumber("Trench Speed", 6000);
   double initSpeed = SmartDashboard::GetNumber("Init Line Speed", 5500);
-  double wallSpeed = SmartDashboard::GetNumber("Wall Speed", 2800);
+  double wallSpeed = SmartDashboard::GetNumber("Wall Speed", 2700);
+  */
 
-
-  if (btnA0) // Wall PID
+  if (btnA1) // Wall PID
   {
+    /*
     cout << "BtnA" << endl;
-    flyWheelL.Config_kF(kPIDLoopIdx, flyWheelF, kTimeoutMs);  // atm 0.047 
-    flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs);  // atm .125
-    flyWheelL.Config_kI(kPIDLoopIdx, flyWheelI, kTimeoutMs);  // atm 0
-    flyWheelL.Config_kD(kPIDLoopIdx, flyWheelD, kTimeoutMs);  // atm 10
+    cout << "flyWheelF: " << flyWheelF << endl;
+    cout << "flyWheelP: " << flyWheelP << endl;
+    cout << "flyWheelD: " << flyWheelD << endl;
+    */
+
+    flyWheelL.Config_kF(kPIDLoopIdx, flyWheelF, kTimeoutMs); // atm 0.047
+    flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs); // atm .125 // current test .11
+    flyWheelL.Config_kI(kPIDLoopIdx, flyWheelI, kTimeoutMs); // atm 0
+    flyWheelL.Config_kD(kPIDLoopIdx, flyWheelD, kTimeoutMs); // atm 10 // current test 6
   }
   else // General PID
   {
+    /*
+    cout << "Else " << endl;
+    cout << "flyWheelF: " << flyWheelF << endl;
+    cout << "flyWheelP: " << flyWheelP << endl;
+    cout << "flyWheelD: " << flyWheelD << endl;
+    */
     flyWheelL.Config_kF(kPIDLoopIdx, 0.0453, kTimeoutMs);
     flyWheelL.Config_kP(kPIDLoopIdx, 0.15, kTimeoutMs);
     flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
@@ -831,7 +849,7 @@ void Robot::TeleopPeriodic()
   else
     flyWheelL.Set(ControlMode::Velocity, launcher(trenchSpeed, initSpeed, wallSpeed));
 
-  SmartDashboard::PutNumber("Returned Value", launcher(trenchSpeed, initSpeed, wallSpeed));
+  //SmartDashboard::PutNumber("Returned Value", launcher(trenchSpeed, initSpeed, wallSpeed));
 
   if (btnBack1)
   {
@@ -897,13 +915,13 @@ void Robot::TeleopPeriodic()
     else
       conveyorMotor.Set(0);
   }
-  else if (leftBumper1)// Purge the system
+  else if (leftTrigger1) // Purge the system
   {
     intakeMotor.Set(-0.5);
     conveyorMotor.Set(-0.5);
     indexMotor.Set(-1);
   }
-  else if (leftTrigger1)// reverse the "v"
+  else if (rightTrigger1) // reverse the "v"
   {
     vMotor1.Set(-0.5);
     vMotor2.Set(-0.5);
@@ -918,28 +936,16 @@ void Robot::TeleopPeriodic()
   }
 
   // Making Climb Move
-  if (rightBumper1)
-  {
-    climbL.Set(1);
-    climbR.Set(1);
-  }
-  else if (rightTrigger1)
-  {
-    climbL.Set(-0.8);
-    climbR.Set(-0.8);
-  }
-  else
-  {
-    climbL.Set(0);
-    climbR.Set(0);
-  }
 
-  if (leftJoystickClick1)
+  climbL.Set(-rightAxisY1);
+  climbR.Set(-rightAxisY1);
+
+  if (leftBumper1)
     brakeLift.Set(false);
   else
     brakeLift.Set(true);
 
-  if (rightJoystickClick1 && !lastRightJoyClick)
+  if (rightBumper1 && !lastRightJoyClick)
   {
     if (intaketoggled)
     {
@@ -952,7 +958,7 @@ void Robot::TeleopPeriodic()
       intaketoggled = true;
     }
   }
-  lastRightJoyClick = rightJoystickClick1;
+  lastRightJoyClick = rightBumper1;
 
   //cout << "DriveStraight " << straightMath(0.15, 0.5, leftAxisY0) << ", ";
   //cout << "Turn " << turnMath(0.18, 0.5, rightAxisX0) << endl;
