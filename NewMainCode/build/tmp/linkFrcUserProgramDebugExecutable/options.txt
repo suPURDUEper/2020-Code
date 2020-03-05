@@ -2,10 +2,7 @@
 C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\exe\\frcUserProgram\\debug\\frcUserProgram
 C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\3bg5a77l7vd4edmrxq5jco6ri\\Robot.o
 C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\45vqxio4pi9nbs4dcvmcpqo1r\\RobotContainer.o
-C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\55erg5812c776wr1xv6zwexh2\\FPID.o
 C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\5iqfx1ejx75cdd54yfot8edwp\\ExampleCommand.o
-C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\blqvhb26eivztrexi6t55k8cm\\launcher.o
-C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\cb1dt8odv8l7yd3pbuuap5slb\\conveyor.o
 C:\\Users\\FRC\\Desktop\\Programes\\NewMainCode\\build\\objs\\frcUserProgram\\debug\\frcUserProgramCpp\\e9khynllkm0mknb0l32iok6gn\\ExampleSubsystem.o
 C:\\Users\\FRC\\.gradle\\caches\\transforms-2\\files-2.1\\1c2795dcb38a2c3544fd3e4816cee391\\wpilibc-cpp-2020.1.2-linuxathenadebug\\linux\\athena\\shared\\libwpilibcd.so
 C:\\Users\\FRC\\.gradle\\caches\\transforms-2\\files-2.1\\1f5c28ff6f362f96081f5973349db223\\ntcore-cpp-2020.1.2-linuxathenadebug\\linux\\athena\\shared\\libntcored.so

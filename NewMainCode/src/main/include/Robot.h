@@ -16,7 +16,7 @@ class Robot : public frc::TimedRobot {
   void TeleopPeriodic() override;
   void TestPeriodic() override;
 
-  void Update_Limelight_Tracking();
+  void Update_Limelight_Tracking(int ledMode);
 
  private:
   // Have it null by default so that if testing teleop it
