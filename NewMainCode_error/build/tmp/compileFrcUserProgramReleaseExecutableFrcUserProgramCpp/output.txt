@@ -1,0 +1,249 @@
+See file:///C:/Users/FRC/Desktop/Programes/NewMainCode/build/tmp/compileFrcUserProgramReleaseExecutableFrcUserProgramCpp/output.txt for all output for compileFrcUserProgramReleaseExecutableFrcUserProgramCpp.
+compiling Robot.cpp failed.
+In file included from C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:22:0:
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\driveMath.h: In function 'double limelightShoot(double, bool)':
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\driveMath.h:7:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+In file included from C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:22:0:
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\driveMath.h:32:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+In file included from C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:23:0:
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:22:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:34:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:46:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:58:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:69:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:32:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:145:22: error: qualified-id in declaration before '(' token
+ void Robot::RobotInit()
+                      ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:238:26: error: qualified-id in declaration before '(' token
+ void Robot::RobotPeriodic()
+                          ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:246:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:290:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:519:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:666:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:695:27: error: qualified-id in declaration before '(' token
+ void Robot::AutonomousInit()
+                           ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:742:31: error: qualified-id in declaration before '(' token
+ void Robot::AutonomousPeriodic()
+                               ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:750:23: error: qualified-id in declaration before '(' token
+ void Robot::TeleopInit()
+                       ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:771:27: error: qualified-id in declaration before '(' token
+ void Robot::TeleopPeriodic()
+                           ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1000:25: error: qualified-id in declaration before '(' token
+ void Robot::TestPeriodic() {}
+                         ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1004:38: error: qualified-id in declaration before '(' token
+ void Robot::Update_Limelight_Tracking(int ledMode)
+                                      ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1080:1: error: a function-definition is not allowed here before '{' token
+ {
+ ^
+In file included from C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:23:0:
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:18:8: warning: unused variable 'leftDriveGoal' [-Wunused-variable]
+ double leftDriveGoal = L_encoder.GetPosition();
+        ^~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\include/Autonomous.h:19:8: warning: unused variable 'rightDriveGoal' [-Wunused-variable]
+ double rightDriveGoal = R_encoder.GetPosition();
+        ^~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:8: warning: unused variable 'kP' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+        ^~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:19: warning: unused variable 'kI' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                   ^~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:30: warning: unused variable 'kD' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                              ^~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:41: warning: unused variable 'kIz' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                                         ^~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:50: warning: unused variable 'kFF' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                                                  ^~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:66: warning: unused variable 'kMaxOutput' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                                                                  ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:69:82: warning: unused variable 'kMinOutput' [-Wunused-variable]
+ double kP = 7e-5, kI = 1e-6, kD = 8e-4, kIz = 0, kFF = 0.000156, kMaxOutput = 1, kMinOutput = -1;
+                                                                                  ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:72:8: warning: unused variable 'kMaxVel' [-Wunused-variable]
+ double kMaxVel = 1800, kMinVel = 0, kMaxAcc = 2000, kAllErr = 1;
+        ^~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:72:24: warning: unused variable 'kMinVel' [-Wunused-variable]
+ double kMaxVel = 1800, kMinVel = 0, kMaxAcc = 2000, kAllErr = 1;
+                        ^~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:72:37: warning: unused variable 'kMaxAcc' [-Wunused-variable]
+ double kMaxVel = 1800, kMinVel = 0, kMaxAcc = 2000, kAllErr = 1;
+                                     ^~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:72:53: warning: unused variable 'kAllErr' [-Wunused-variable]
+ double kMaxVel = 1800, kMinVel = 0, kMaxAcc = 2000, kAllErr = 1;
+                                                     ^~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:75:14: warning: unused variable 'MaxRPM' [-Wunused-variable]
+ const double MaxRPM = 5700;
+              ^~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:77:5: warning: unused variable 'currentLimit' [-Wunused-variable]
+ int currentLimit{50};
+     ^~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:80:8: warning: unused variable 'leftAxisX0' [-Wunused-variable]
+ double leftAxisX0{driveController.GetRawAxis(0)};
+        ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:81:8: warning: unused variable 'leftAxisY0' [-Wunused-variable]
+ double leftAxisY0{driveController.GetRawAxis(1)}; //took out * -1
+        ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:82:8: warning: unused variable 'rightAxisX0' [-Wunused-variable]
+ double rightAxisX0{driveController.GetRawAxis(2)};
+        ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:83:8: warning: unused variable 'rightAxisY0' [-Wunused-variable]
+ double rightAxisY0{driveController.GetRawAxis(3)}; //took out * -1
+        ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:86:6: warning: unused variable 'btnX0' [-Wunused-variable]
+ bool btnX0{driveController.GetRawButton(1)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:87:6: warning: unused variable 'btnA0' [-Wunused-variable]
+ bool btnA0{driveController.GetRawButton(2)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:88:6: warning: unused variable 'btnB0' [-Wunused-variable]
+ bool btnB0{driveController.GetRawButton(3)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:89:6: warning: unused variable 'btnY0' [-Wunused-variable]
+ bool btnY0{driveController.GetRawButton(4)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:92:6: warning: unused variable 'leftBumper0' [-Wunused-variable]
+ bool leftBumper0{driveController.GetRawButton(5)};
+      ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:93:6: warning: unused variable 'rightBumper0' [-Wunused-variable]
+ bool rightBumper0{driveController.GetRawButton(6)};
+      ^~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:94:6: warning: unused variable 'leftTrigger0' [-Wunused-variable]
+ bool leftTrigger0{driveController.GetRawButton(7)};
+      ^~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:95:6: warning: unused variable 'rightTrigger0' [-Wunused-variable]
+ bool rightTrigger0{driveController.GetRawButton(8)};
+      ^~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:98:6: warning: unused variable 'btnBack0' [-Wunused-variable]
+ bool btnBack0{driveController.GetRawButton(9)};
+      ^~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:99:6: warning: unused variable 'btnStart0' [-Wunused-variable]
+ bool btnStart0{driveController.GetRawButton(10)};
+      ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:100:6: warning: unused variable 'leftJoystickClick0' [-Wunused-variable]
+ bool leftJoystickClick0{driveController.GetRawButton(11)};
+      ^~~~~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:101:6: warning: unused variable 'rightJoystickClick0' [-Wunused-variable]
+ bool rightJoystickClick0{driveController.GetRawButton(12)};
+      ^~~~~~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:104:8: warning: unused variable 'leftAxisX1' [-Wunused-variable]
+ double leftAxisX1{operatorController.GetRawAxis(0)};
+        ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:105:8: warning: unused variable 'leftAxisY1' [-Wunused-variable]
+ double leftAxisY1{operatorController.GetRawAxis(1)}; //took out * -1
+        ^~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:106:8: warning: unused variable 'rightAxisX1' [-Wunused-variable]
+ double rightAxisX1{operatorController.GetRawAxis(2)};
+        ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:107:8: warning: unused variable 'rightAxisY1' [-Wunused-variable]
+ double rightAxisY1{operatorController.GetRawAxis(3)}; //too out * -1
+        ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:110:6: warning: unused variable 'btnX1' [-Wunused-variable]
+ bool btnX1{operatorController.GetRawButton(1)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:111:6: warning: unused variable 'btnA1' [-Wunused-variable]
+ bool btnA1{operatorController.GetRawButton(2)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:112:6: warning: unused variable 'btnB1' [-Wunused-variable]
+ bool btnB1{operatorController.GetRawButton(3)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:113:6: warning: unused variable 'btnY1' [-Wunused-variable]
+ bool btnY1{operatorController.GetRawButton(4)};
+      ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:116:6: warning: unused variable 'leftBumper1' [-Wunused-variable]
+ bool leftBumper1{operatorController.GetRawButton(5)};
+      ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:117:6: warning: unused variable 'rightBumper1' [-Wunused-variable]
+ bool rightBumper1{operatorController.GetRawButton(6)};
+      ^~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:118:6: warning: unused variable 'leftTrigger1' [-Wunused-variable]
+ bool leftTrigger1{operatorController.GetRawButton(7)};
+      ^~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:119:6: warning: unused variable 'rightTrigger1' [-Wunused-variable]
+ bool rightTrigger1{operatorController.GetRawButton(8)};
+      ^~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:122:6: warning: unused variable 'btnBack1' [-Wunused-variable]
+ bool btnBack1{operatorController.GetRawButton(9)};
+      ^~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:123:6: warning: unused variable 'btnStart1' [-Wunused-variable]
+ bool btnStart1{operatorController.GetRawButton(10)};
+      ^~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:124:6: warning: unused variable 'leftJoystickClick1' [-Wunused-variable]
+ bool leftJoystickClick1{operatorController.GetRawButton(11)};
+      ^~~~~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:125:6: warning: unused variable 'rightJoystickClick1' [-Wunused-variable]
+ bool rightJoystickClick1{operatorController.GetRawButton(12)};
+      ^~~~~~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:128:6: warning: unused variable 'firstTop' [-Wunused-variable]
+ bool firstTop{true};
+      ^~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:129:6: warning: unused variable 'firstBottom' [-Wunused-variable]
+ bool firstBottom{true};
+      ^~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:131:5: warning: unused variable 'clicks' [-Wunused-variable]
+ int clicks = 21;
+     ^~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:132:6: warning: unused variable 'intaketoggled' [-Wunused-variable]
+ bool intaketoggled = false;
+      ^~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:133:6: warning: unused variable 'lastRightJoyClick' [-Wunused-variable]
+ bool lastRightJoyClick = false;
+      ^~~~~~~~~~~~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:136:6: warning: unused variable 'nitros' [-Wunused-variable]
+ bool nitros{false};
+      ^~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:142:5: warning: unused variable '_loops' [-Wunused-variable]
+ int _loops = 0;
+     ^~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:143:5: warning: unused variable 'ledMode' [-Wunused-variable]
+ int ledMode;
+     ^~~~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:243:5: warning: unused variable 'phase' [-Wunused-variable]
+ int phase;
+     ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1002:7: warning: unused variable 'txavg' [-Wunused-variable]
+ float txavg = 0;
+       ^~~~~
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1082:1: error: expected '}' at end of input
+ }
+ ^
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:1082:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+
+Finished compileFrcUserProgramReleaseExecutableFrcUserProgramCpp, see full log file:///C:/Users/FRC/Desktop/Programes/NewMainCode/build/tmp/compileFrcUserProgramReleaseExecutableFrcUserProgramCpp/output.txt.
