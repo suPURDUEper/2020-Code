@@ -2,7 +2,7 @@
 #define LAUNCHER_H_
 #include "commonVariables.h"
 
-double launcher(double trenchSpeed, double initSpeed, double wallSpeed)
+double launcher(double trenchSpeed, double initSpeed, double wallSpeed, double limelightSpeed)
 {
     double flyWheelDesiredSpeed;
     if (btnY1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.9 && flyWheelR.GetSelectedSensorVelocity() < 0.9 || flyWheelL.GetSelectedSensorVelocity() > 0.9 && flyWheelR.GetSelectedSensorVelocity() > 0.9*/)
@@ -16,6 +16,10 @@ double launcher(double trenchSpeed, double initSpeed, double wallSpeed)
     else if (btnA1 /*&& flyWheelL.GetSelectedSensorVelocity() < 0.5 && flyWheelR.GetSelectedSensorVelocity() < 0.5 || flyWheelL.GetSelectedSensorVelocity() > 0.5 && flyWheelR.GetSelectedSensorVelocity() > 0.5*/)
     {
         flyWheelDesiredSpeed = wallSpeed * 3.4133;
+    }
+    else if (btnB1)
+    {
+        flyWheelDesiredSpeed = limelightSpeed * 3.4133;
     }
     else
     {
