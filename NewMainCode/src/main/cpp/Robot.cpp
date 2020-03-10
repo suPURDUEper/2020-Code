@@ -251,9 +251,10 @@ void auton1()
   if (0 < timer.Get() && timer.Get() < phase1)
   {
     //      set flywheel velocity     //
+    intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
     cout << "phase1 " << timer.Get() << endl;
-    flyWheelL.Set(ControlMode::Velocity, 5000 * 3.4133);
-    //ArcadeDrive.ArcadeDrive(0, 0);
+    flyWheelL.Set(ControlMode::Velocity, 5500 * 3.4133);
+    ArcadeDrive.ArcadeDrive(0, 0);
   }
   else if (phase1 < timer.Get() && timer.Get() < phase2)
   {
@@ -261,7 +262,7 @@ void auton1()
     cout << "phase2 " << timer.Get() << endl;
     conveyorMotor.Set(0.5);
     indexMotor.Set(0.7);
-    //ArcadeDrive.ArcadeDrive(0, 0);
+    ArcadeDrive.ArcadeDrive(0, 0);
   }
   else if (phase2 < timer.Get() && timer.Get() < phase3)
   {
@@ -270,16 +271,16 @@ void auton1()
     flyWheelL.Set(0);
     conveyorMotor.Set(0);
     indexMotor.Set(0);
-    //ArcadeDrive.ArcadeDrive(0.6, 0);
+    ArcadeDrive.ArcadeDrive(0.6, 0);
   }
   else if (phase3 < timer.Get() && timer.Get() < phase4)
   {
-    //ArcadeDrive.ArcadeDrive(-0.3, 0);
+    ArcadeDrive.ArcadeDrive(-0.3, 0);
   }
   else
   {
     cout << "phase4 " << timer.Get() << endl;
-    //ArcadeDrive.ArcadeDrive(0, 0);
+    ArcadeDrive.ArcadeDrive(0, 0);
     indexMotor.Set(0);
     conveyorMotor.Set(0);
     flyWheelL.Set(0);
@@ -293,14 +294,14 @@ void auton2(float m_LimelightTurnCmd)
   float phase3 = 0.025 + phase2;  //turn off shooter
   float phase4 = 0.025 + phase3;  //back up // eliminated for now
   float phase5 = 1.0 + phase4;    //turn //was 0.75
-  float phase6 = 2.0 + phase5;    //back up to line up with trench balls
+  float phase6 = 2.2 + phase5;    //back up to line up with trench balls
   float phase7 = 1.5 + phase6;    //turn to face trench balls
   float phase8 = 0.5 + phase7;    //lower intake (already done in last phase)
-  float phase9 = 2.5 + phase8;    // drive forward to intake balls
+  float phase9 = 2.75 + phase8;    // drive forward to intake balls
   float phase10 = 0.5 + phase9;   //short turn before backing up
   float phase11 = 2.25 + phase10; //backing up
   float phase12 = 1.75 + phase11; //turning to face goal
-  float phase13 = 1.2 + phase12;  //limelight time
+  float phase13 = 1.0 + phase12;  //limelight time
   float phase14 = 1 + phase13;    //shooting
   float phase15 = .025 + phase14;
   ArcadeDrive.FeedWatchdog();
@@ -361,7 +362,7 @@ void auton2(float m_LimelightTurnCmd)
   {
     if (phase == 4)
     {
-      rightSweep(-50);
+      rightSweep(-51);
       phase = 5;
     }
     cout << "phase5 " << timer.Get() << endl;
@@ -381,7 +382,7 @@ void auton2(float m_LimelightTurnCmd)
   {
     if (phase == 6)
     {
-      turn(-131);
+      turn(-132);
       phase = 7;
     }
     cout << "phase7 " << timer.Get() << endl;
@@ -405,7 +406,7 @@ void auton2(float m_LimelightTurnCmd)
   {
     if (phase == 8)
     {
-      driveStraight(72);
+      driveStraight(81);
       phase = 9;
     }
     cout << "phase9 " << timer.Get() << endl;
@@ -418,6 +419,7 @@ void auton2(float m_LimelightTurnCmd)
       rightSweep(-20);
       phase = 10;
     }
+
     cout << "phase10 " << timer.Get() << endl;
   }
   //Backing up out of trench... should be 90?
@@ -425,12 +427,11 @@ void auton2(float m_LimelightTurnCmd)
   {
     if (phase == 10)
     {
-
-      driveStraightFast(-124);
+      driveStraightFast(-133);
       phase = 11;
     }
-    intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
-    indexMotor.Set(0);
+    
+    indexMotor.Set(0.7);
     cout << "phase11 " << timer.Get() << endl;
   }
   //Turn around to face goal
@@ -438,9 +439,10 @@ void auton2(float m_LimelightTurnCmd)
   {
     if (phase == 11)
     {
-      turn(-160);
+      turn(-175);
       phase = 12;
     }
+    intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
     cout << "phase12 " << timer.Get() << endl;
   }
   //Limelight aim at goal
@@ -482,14 +484,8 @@ void auton2(float m_LimelightTurnCmd)
   //Breakbeam logic during these intaking phases
   if (phase == 8 || phase == 9 || phase == 10 || phase == 11)
   {
-    if (phase == 11)
-    {
-      intakeMotor.Set(0);
-    }
-    else
-    {
-      intakeMotor.Set(1);
-    }
+
+    intakeMotor.Set(1);
 
     vMotor1.Set(0.7);
     vMotor2.Set(0.9);
@@ -508,23 +504,19 @@ void auton2(float m_LimelightTurnCmd)
     else
       conveyorMotor.Set(0);
   }
-  else if (phase == 10)
-  {
-    conveyorMotor.Set(0);
-    intakeMotor.Set(0);
-  }
+
 }
 
 void auton3(double m_LimelightTurnCmd)
 {
   float phase1 = 2;              // Drive Forward lower hood
-  float phase2 = 1 + phase1;     // Turn toward 2nd ball
+  float phase2 = 0.75 + phase1;     // Turn toward 2nd ball
   float phase3 = 0.025 + phase2; // Drive forward slightly
   float phase4 = 2.5 + phase3;   // Get outta there
-  float phase5 = 2 + phase4;     // Turn left
+  float phase5 = 2.5 + phase4;     // Turn left
   float phase6 = 2 + phase5;     // Drive across field
-  float phase7 = 2 + phase6;     // Turn toward goal
-  float phase8 = 1 + phase7;     // Limelight
+  float phase7 = 2.25 + phase6;     // Turn toward goal
+  float phase8 = 1.25 + phase7;     // Limelight
   float phase9 = 1.5 + phase8;   // Shoot
 
   ArcadeDrive.FeedWatchdog();
@@ -540,7 +532,7 @@ void auton3(double m_LimelightTurnCmd)
   {
     if (phase == 0)
     {
-      driveStraightFast(91);
+      driveStraightFast(97);
       phase = 1;
     }
     intakeSolenoid.Set(DoubleSolenoid::Value::kReverse);
@@ -594,7 +586,7 @@ void auton3(double m_LimelightTurnCmd)
   {
     if (phase == 5)
     {
-      driveStraight(90);
+      driveStraight(114);
       phase = 6;
     }
     cout << "phase5 " << timer.Get() << endl;
@@ -604,7 +596,7 @@ void auton3(double m_LimelightTurnCmd)
   {
     if (phase == 6)
     {
-      turn(-70);
+      turn(-80);
       phase = 7;
     }
     cout << "phase7 " << timer.Get() << endl;
@@ -634,7 +626,7 @@ void auton3(double m_LimelightTurnCmd)
     cout << "phase8 " << timer.Get() << endl;
   }
   //Breakbeam logic during these intaking phases
-  if (phase == 1 || phase == 2 || phase == 3 || phase == 4 || phase == 5)
+  if (phase == 1 || phase == 2 || phase == 3 || phase == 4 || phase == 5 || phase == 6)
   {
     intakeMotor.Set(.8);
     vMotor1.Set(0.7);
@@ -736,14 +728,15 @@ void Robot::AutonomousInit()
   leftDriveGoal = L_encoder.GetPosition();
   rightDriveGoal = R_encoder.GetPosition();
 
-  intakeSolenoid.Set(DoubleSolenoid::Value::kReverse);
+  intakeSolenoid.Set(DoubleSolenoid::Value::kForward);
 }
 
 void Robot::AutonomousPeriodic()
 {
   Update_Limelight_Tracking(ledMode);
-  auton2(m_LimelightTurnCmd);
-  //auton3(m_LimelightTurnCmd);
+  //auton1();
+  //auton2(m_LimelightTurnCmd);
+  auton3(m_LimelightTurnCmd);
   //auton4();
 }
 
@@ -834,6 +827,8 @@ void Robot::TeleopPeriodic()
     flyWheelL.Config_kP(kPIDLoopIdx, flyWheelP, kTimeoutMs); // atm .125 // current test .11
     flyWheelL.Config_kI(kPIDLoopIdx, flyWheelI, kTimeoutMs); // atm 0
     flyWheelL.Config_kD(kPIDLoopIdx, flyWheelD, kTimeoutMs); // atm 10 // current test 6
+
+    hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
   }
   else // General PID
   {
@@ -843,6 +838,8 @@ void Robot::TeleopPeriodic()
     cout << "flyWheelP: " << flyWheelP << endl;
     cout << "flyWheelD: " << flyWheelD << endl;
     */
+   
+    hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
     flyWheelL.Config_kF(kPIDLoopIdx, 0.0453, kTimeoutMs);
     flyWheelL.Config_kP(kPIDLoopIdx, 0.15, kTimeoutMs);
     flyWheelL.Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
@@ -859,6 +856,7 @@ void Robot::TeleopPeriodic()
 
   //SmartDashboard::PutNumber("Returned Value", launcher(trenchSpeed, initSpeed, wallSpeed));
 
+  /*
   if (btnBack1)
   {
     hoodSolenoid.Set(DoubleSolenoid::Value::kForward);
@@ -867,6 +865,7 @@ void Robot::TeleopPeriodic()
   {
     hoodSolenoid.Set(DoubleSolenoid::Value::kReverse);
   }
+  */
 
   if (rightTrigger0)
   {
@@ -892,6 +891,7 @@ void Robot::TeleopPeriodic()
       indexMotor.Set(.9);
     }
   }
+
   else if (leftTrigger0)
   {
     intakeMotor.Set(.6);

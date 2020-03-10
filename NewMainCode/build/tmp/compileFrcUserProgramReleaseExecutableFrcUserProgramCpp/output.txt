@@ -20,22 +20,22 @@ C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:200:10: warnin
    double slowConveyor = 0.5;
           ^~~~~~~~~~~~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In function 'void auton2(float)':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:305:9: warning: unused variable 'phase15' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:306:9: warning: unused variable 'phase15' [-Wunused-variable]
    float phase15 = .025 + phase14;
          ^~~~~~~
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:309:10: warning: unused variable 'tx' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:310:10: warning: unused variable 'tx' [-Wunused-variable]
    double tx = table->GetNumber("tx", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In function 'void auton3(double)':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:533:10: warning: unused variable 'tx' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:525:10: warning: unused variable 'tx' [-Wunused-variable]
    double tx = table->GetNumber("tx", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::AutonomousInit()':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:727:10: warning: unused variable 'wallP' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:719:10: warning: unused variable 'wallP' [-Wunused-variable]
    double wallP = SmartDashboard::GetNumber("WallP", 0.125);
           ^~~~~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopInit()':
-C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:761:8: warning: unused variable 'firstLoop' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp:754:8: warning: unused variable 'firstLoop' [-Wunused-variable]
    bool firstLoop = true;
         ^~~~~~~~~
 C:\Users\FRC\Desktop\Programes\NewMainCode\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopPeriodic()':
