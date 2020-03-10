@@ -27,29 +27,29 @@ C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:310:10:
    double tx = table->GetNumber("tx", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp: In function 'void auton3(double, bool, double)':
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:545:10: warning: unused variable 'tx' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:547:10: warning: unused variable 'tx' [-Wunused-variable]
    double tx = table->GetNumber("tx", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::AutonomousInit()':
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:757:10: warning: unused variable 'wallP' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:775:10: warning: unused variable 'wallP' [-Wunused-variable]
    double wallP = SmartDashboard::GetNumber("WallP", 0.125);
           ^~~~~
 C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopInit()':
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:796:8: warning: unused variable 'firstLoop' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:814:8: warning: unused variable 'firstLoop' [-Wunused-variable]
    bool firstLoop = true;
         ^~~~~~~~~
 C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp: In member function 'virtual void Robot::TeleopPeriodic()':
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1052:10: warning: unused variable 'ta' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1070:10: warning: unused variable 'ta' [-Wunused-variable]
    double ta = table->GetNumber("ta", 0.0);
           ^~
 C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp: In member function 'void Robot::Update_Limelight_Tracking(int)':
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1095:11: warning: unused variable 'steering_adjust' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1113:11: warning: unused variable 'steering_adjust' [-Wunused-variable]
      float steering_adjust = 0.0;
            ^~~~~~~~~~~~~~~
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1063:9: warning: unused variable 'ki' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1081:9: warning: unused variable 'ki' [-Wunused-variable]
    float ki = 0.00125;
          ^~
-C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1075:10: warning: unused variable 'ty' [-Wunused-variable]
+C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:1093:10: warning: unused variable 'ty' [-Wunused-variable]
    double ty = table->GetNumber("ty", 0.0);
           ^~
 In file included from C:\Users\FRC\Desktop\Programes\2020_Columbus_Code\src\main\cpp\Robot.cpp:19:0:

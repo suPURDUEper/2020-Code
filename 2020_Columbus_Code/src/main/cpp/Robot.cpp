@@ -1,3 +1,5 @@
+//added if no target, don't shoot, shoot at limelight speed in auto, bool for direct shot in auton3, all untested
+
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <networktables/NetworkTableInstance.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -539,6 +541,8 @@ void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelig
   float phase8 = 1.25 + phase7;     // Limelight
   float phase9 = 1.5 + phase8;   // Shoot
 
+  bool directShot = true; //change before uploading true = direct shot, false = shorter distance, angled shot
+
   ArcadeDrive.FeedWatchdog();
 
   shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
@@ -584,7 +588,8 @@ void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelig
   {
     if (phase == 3)
     {
-      driveStraightFast(-88);
+        driveStraightFast(-88);
+      
       phase = 4;
     }
 
@@ -606,7 +611,15 @@ void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelig
   {
     if (phase == 5)
     {
-      driveStraight(114);
+      if (directShot)
+      {
+         driveStraight(114);
+      }
+      else
+      {
+        driveStraight(90);
+      }
+      
       phase = 6;
     }
     cout << "phase5 " << timer.Get() << endl;
@@ -616,7 +629,14 @@ void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelig
   {
     if (phase == 6)
     {
-      turn(-80);
+      if (directShot)
+      {
+        turn(-80);
+      }
+      else
+      {
+        turn(-70);
+      }
       phase = 7;
     }
     cout << "phase7 " << timer.Get() << endl;
@@ -777,7 +797,7 @@ void Robot::AutonomousPeriodic()
   limelightSpeed = limelightShoot(limelightSpeed, m_LimelightHasTarget);
 
   //auton1(); //Shoot 3 push robot
-  //auton2(m_LimelightTurnCmd, m_LimelightHasTarget); //6 ball
+  //auton2(m_LimelightTurnCmd, m_LimelightHasTarget, limelightSpeed); //6 ball
   auton3(m_LimelightTurnCmd, m_LimelightHasTarget, limelightSpeed); //5 ball
   //auton4(); //pid testing (not for competition)
 }
