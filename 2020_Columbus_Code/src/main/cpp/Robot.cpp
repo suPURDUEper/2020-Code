@@ -287,7 +287,7 @@ void auton1()
   }
 }
 
-void auton2(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
+void auton2(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelightSpeed)
 {
   float phase1 = 0.25;            //spin up
   float phase2 = 0.500 + phase1;  //unload
@@ -320,7 +320,7 @@ void auton2(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
 
       phase = 1;
     }
-    flyWheelL.Set(ControlMode::Velocity, 6000 * 3.4133); //change in auton1 if this works
+    flyWheelL.Set(ControlMode::Velocity, 6000 * 3.4133); //change in auton1 if this works //6000
     cout << "phase1 " << timer.Get() << endl;
   }
   // Launch 3 preload balls
@@ -458,7 +458,7 @@ void auton2(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
 
     if (m_LimelightHasTarget)
     {
-      flyWheelL.Set(ControlMode::Velocity, 5500 * 3.4133);
+      flyWheelL.Set(ControlMode::Velocity, limelightSpeed * 3.4133);
     }
     else
     {
@@ -527,7 +527,7 @@ void auton2(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
 
 }
 
-void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
+void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget, double limelightSpeed)
 {
   float phase1 = 2;              // Drive Forward lower hood
   float phase2 = 0.75 + phase1;     // Turn toward 2nd ball
@@ -633,7 +633,7 @@ void auton3(double m_LimelightTurnCmd, bool m_LimelightHasTarget)
     ArcadeDrive.ArcadeDrive(0, m_LimelightTurnCmd);
     if (m_LimelightHasTarget)
     {
-      flyWheelL.Set(ControlMode::Velocity, 5500 * 3.4133);
+      flyWheelL.Set(ControlMode::Velocity, limelightSpeed * 3.4133); //5500
     }
     else
     {
@@ -772,9 +772,13 @@ void Robot::AutonomousInit()
 void Robot::AutonomousPeriodic()
 {
   Update_Limelight_Tracking(ledMode);
+
+  double limelightSpeed = 0;
+  limelightSpeed = limelightShoot(limelightSpeed, m_LimelightHasTarget);
+
   //auton1(); //Shoot 3 push robot
   //auton2(m_LimelightTurnCmd, m_LimelightHasTarget); //6 ball
-  auton3(m_LimelightTurnCmd, m_LimelightHasTarget); //5 ball
+  auton3(m_LimelightTurnCmd, m_LimelightHasTarget, limelightSpeed); //5 ball
   //auton4(); //pid testing (not for competition)
 }
 
