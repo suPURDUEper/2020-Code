@@ -1,0 +1,4 @@
+See file:///C:/Users/Authorized%20User/Documents/FRC%20Code/Orchestra%20Test/Music-Orchestra/build/tmp/compileFrcUserProgramDebugExecutableFrcUserProgramCpp/output.txt for all output for compileFrcUserProgramDebugExecutableFrcUserProgramCpp.
+compiling Robot.cpp successful.
+
+Finished compileFrcUserProgramDebugExecutableFrcUserProgramCpp, see full log file:///C:/Users/Authorized%20User/Documents/FRC%20Code/Orchestra%20Test/Music-Orchestra/build/tmp/compileFrcUserProgramDebugExecutableFrcUserProgramCpp/output.txt.

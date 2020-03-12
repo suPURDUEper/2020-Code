@@ -1,0 +1,4 @@
+See file:///C:/Users/Authorized%20User/Documents/FRC%20Code/Orchestra%20Test/Music-Orchestra/build/tmp/linkFrcUserProgramReleaseExecutable/output.txt for all output for linkFrcUserProgramReleaseExecutable.
+linking frcUserProgram successful.
+
+Finished linkFrcUserProgramReleaseExecutable, see full log file:///C:/Users/Authorized%20User/Documents/FRC%20Code/Orchestra%20Test/Music-Orchestra/build/tmp/linkFrcUserProgramReleaseExecutable/output.txt.
